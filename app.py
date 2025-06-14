@@ -5,6 +5,8 @@ import logging
 from datetime import datetime
 import os
 from werkzeug.exceptions import HTTPException
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 
@@ -24,6 +26,7 @@ TEMPLATE_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 MAX_TICKETS_PER_REQUEST = 50
 DEFAULT_FORMAT = {'width': '180mm', 'height': '70mm'}
 
+CORS(app)
 @app.route('/')
 def health_check():
     return jsonify({
