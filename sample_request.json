@@ -1,0 +1,62 @@
+{
+  "tickets": [
+    {
+      "event": {
+        "id": 1,
+        "name": "Concert de musique",
+        "start_date": "2023-12-31T23:00:00",
+        "location": "Salle des fêtes",
+        "description": "Un concert exceptionnel avec des artistes de renom."
+      },
+      "ticket": {
+        "id": 1,
+        "name": "Place Standard",
+        "price": 10000,
+        "quantity": 1
+      },
+      "payment": {
+        "id": 12345,
+        "matricule": "TKT202312345",
+        "amount": 10000,
+        "status": "completed",
+        "created_at": "2023-12-01T10:30:00",
+        "name": "Jean Dupont",
+        "email": "jean.dupont@example.com",
+        "phone": "+2250700000000"
+      },
+      "index": 1,
+      "total": 2,
+      "qrCode": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmZmYiLz48L3N2Zz4=",
+      "eventImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    },
+    {
+      "event": {
+        "id": 1,
+        "name": "Concert de musique",
+        "start_date": "2023-12-31T23:00:00",
+        "location": "Salle des fêtes",
+        "description": "Un concert exceptionnel avec des artistes de renom."
+      },
+      "ticket": {
+        "id": 1,
+        "name": "Place Standard",
+        "price": 10000,
+        "quantity": 1
+      },
+      "payment": {
+        "id": 12345,
+        "matricule": "TKT202312345",
+        "amount": 10000,
+        "status": "completed",
+        "created_at": "2023-12-01T10:30:00",
+        "name": "Marie Martin",
+        "email": "marie.martin@example.com",
+        "phone": "+2250700000001"
+      },
+      "index": 2,
+      "total": 2,
+      "qrCode": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmZmYiLz48L3N2Zz4=",
+      "eventImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    }
+  ]
+}
