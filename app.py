@@ -31,11 +31,6 @@ DEFAULT_FORMAT = {'width': '180mm', 'height': '70mm'}
 MAX_IMAGE_SIZE = 1024 * 1024  # 1MB max pour les images
 TEMP_DIR = tempfile.mkdtemp(prefix='pdf_service_')
 
-# Configuration WeasyPrint
-os.environ['WEASYPRINT_DPI'] = '300'
-os.environ['WEASYPRENT_IMAGE_MAX_WIDTH'] = '1000'
-os.environ['WEASYPRENT_IMAGE_MAX_HEIGHT'] = '1000'
-
 CORS(app)
 
 def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
@@ -48,8 +43,8 @@ def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
             
             with Image.open(tmp_path) as img:
                 # Réduire la taille si nécessaire
-                if img.width > 1000 or img.height > 1000:
-                    img.thumbnail((1000, 1000))
+                if img.width > 800 or img.height > 800:
+                    img.thumbnail((800, 800))
                 
                 # Convertir en JPEG pour réduire la taille
                 if img.mode != 'RGB':
@@ -57,7 +52,7 @@ def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
                 
                 # Optimiser la qualité
                 optimized_path = f"{tmp_path}_optimized.jpg"
-                img.save(optimized_path, format='JPEG', quality=85, optimize=True)
+                img.save(optimized_path, format='JPEG', quality=85)
                 
                 with open(optimized_path, 'rb') as f:
                     optimized_data = base64.b64encode(f.read()).decode('utf-8')
@@ -87,9 +82,8 @@ def health_check():
     return jsonify({
         'status': 'running',
         'service': 'PDF Generator',
-        'version': '1.1.0',
-        'temp_dir': TEMP_DIR,
-        'max_image_size': f"{MAX_IMAGE_SIZE/1024/1024:.1f}MB"
+        'version': '1.1.1',
+        'temp_dir': TEMP_DIR
     }), 200
 
 @app.route('/generate-ticket', methods=['POST'])
@@ -131,7 +125,7 @@ def generate_ticket():
         # Génération HTML
         html = render_template("ticket_template.html", **ticket_data)
         
-        # CSS optimisé
+        # CSS simplifié et compatible
         css = CSS(string="""
             @page {
                 size: 180mm 70mm;
@@ -145,8 +139,6 @@ def generate_ticket():
                 padding: 0;
                 font-family: 'Montserrat', sans-serif;
                 overflow: hidden;
-                -weasy-font-feature-settings: "kern" 1;
-                text-rendering: optimizeLegibility;
             }
             .ticket-container {
                 width: 100%;
@@ -161,7 +153,6 @@ def generate_ticket():
                 background-position: center;
                 background-repeat: no-repeat;
                 color: white;
-                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
                 padding: 8mm 10mm;
                 display: flex;
                 flex-direction: column;
@@ -170,22 +161,14 @@ def generate_ticket():
             .qr-container img {
                 width: 100%;
                 height: 100%;
-                object-fit: contain;
-                image-rendering: -webkit-optimize-contrast;
             }
         """)
         
-        # Génération PDF avec options optimisées
+        # Génération PDF avec options compatibles
         pdf = HTML(
             string=html,
             base_url=request.base_url
-        ).write_pdf(
-            stylesheets=[css],
-            optimize_images=True,
-            image_cache=None,  # Désactive le cache pour éviter les fuites mémoire
-            presentational_hints=True,
-            zoom=0.75  # Réduit légèrement la qualité pour améliorer les performances
-        )
+        ).write_pdf(stylesheets=[css])
         
         logger.info(f"PDF généré avec succès - Référence: {ticket_data['reference']}")
         
@@ -282,10 +265,7 @@ def generate_multiple_tickets():
         for doc in pdf_docs[1:]:
             main_doc.pages.extend(doc.pages)
         
-        pdf_bytes = main_doc.write_pdf(
-            optimize_images=True,
-            image_cache=None
-        )
+        pdf_bytes = main_doc.write_pdf()
         
         first_ref = tickets[0].get('reference', 'start')
         last_ref = tickets[-1].get('reference', 'end')
