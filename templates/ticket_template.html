@@ -51,7 +51,7 @@
     .ticket-left.custom-bg {
   background-image: 
     linear-gradient(rgba(15, 26, 61, 0.85), rgba(15, 26, 61, 0.9)),
-    url('{{ event_image_base64 }}');
+    url('data:{{ image_mime_type }};base64,{{ event_image }}');
 }
 
 .ticket-left.default-bg {
@@ -199,8 +199,7 @@
 <body>
   <div class="ticket-container">
     <!-- Partie gauche -->
-<div class="ticket-left 
-     {% if event_image_base64 %}custom-bg{% else %}default-bg{% endif %}">
+<div class="ticket-left {% if event_image %}custom-bg{% else %}default-bg{% endif %}">
       <div class="event-header">
         <h1 class="event-title">{{ event_title }}</h1>
         <div class="event-date">{{ event_date_time }}</div>
@@ -228,12 +227,12 @@
     <div class="ticket-right">
       <div class="ticket-type">{{ ticket_type }}</div>
       <div class="qr-container">
-        {% if qr_code_base64 %}
-          <img src="{{ qr_code_base64 }}" alt="QR Code">
-        {% else %}
-          <span style="color:red;font-weight:bold;">QR CODE MANQUANT</span>
-        {% endif %}
-      </div>
+  {% if qr_code %}
+    <img src="data:image/svg+xml;base64,{{ qr_code }}" alt="QR Code">
+  {% else %}
+    <span style="color:red;font-weight:bold;">QR CODE MANQUANT</span>
+  {% endif %}
+</div>
       <div class="ticket-number">{{ current_ticket }}/{{ total_tickets }}</div>
       <div class="ticket-reference">{{ reference }}</div>
     </div>
