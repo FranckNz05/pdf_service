@@ -33,7 +33,7 @@
       height: 70mm;
       background: 
         linear-gradient(rgba(15, 26, 61, 0.85), rgba(15, 26, 61, 0.9)),
-        url('{{ event_image_url | default("https://images.unsplash.com/photo-1531058020387-3be344556be6") }}');
+        url('{{ event_image_base64 | default("https://images.unsplash.com/photo-1531058020387-3be344556be6") }}');
       background-size: cover;
       background-position: center;
       color: white;
@@ -200,8 +200,8 @@
     <div class="ticket-right">
       <div class="ticket-type">{{ ticket_type }}</div>
       <div class="qr-container">
-        {% if qr_code_url %}
-        <img src="data:image/svg+xml;base64,{{ qr_code_url | b64encode }}" alt="QR Code">
+        {% if qr_code_base64 %}
+          <img src="{{ qr_code_base64 }}" alt="QR Code">
         {% else %}
           <span>QR CODE</span>
         {% endif %}
