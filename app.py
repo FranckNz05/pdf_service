@@ -6,7 +6,10 @@ from datetime import datetime
 import os
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
-
+import base64
+from PIL import Image
+import tempfile
+import shutil
 
 app = Flask(__name__)
 
@@ -25,22 +28,74 @@ logger = logging.getLogger(__name__)
 TEMPLATE_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 MAX_TICKETS_PER_REQUEST = 50
 DEFAULT_FORMAT = {'width': '180mm', 'height': '70mm'}
+MAX_IMAGE_SIZE = 1024 * 1024  # 1MB max pour les images
+TEMP_DIR = tempfile.mkdtemp(prefix='pdf_service_')
+
+# Configuration WeasyPrint
+os.environ['WEASYPRINT_DPI'] = '300'
+os.environ['WEASYPRENT_IMAGE_MAX_WIDTH'] = '1000'
+os.environ['WEASYPRENT_IMAGE_MAX_HEIGHT'] = '1000'
 
 CORS(app)
+
+def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
+    """Optimise une image en base64 pour WeasyPrint"""
+    try:
+        if len(image_data) > max_size:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
+                tmp.write(base64.b64decode(image_data))
+                tmp_path = tmp.name
+            
+            with Image.open(tmp_path) as img:
+                # Réduire la taille si nécessaire
+                if img.width > 1000 or img.height > 1000:
+                    img.thumbnail((1000, 1000))
+                
+                # Convertir en JPEG pour réduire la taille
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # Optimiser la qualité
+                optimized_path = f"{tmp_path}_optimized.jpg"
+                img.save(optimized_path, format='JPEG', quality=85, optimize=True)
+                
+                with open(optimized_path, 'rb') as f:
+                    optimized_data = base64.b64encode(f.read()).decode('utf-8')
+                
+                os.unlink(tmp_path)
+                os.unlink(optimized_path)
+                
+                logger.info(f"Image optimisée: {len(image_data)} -> {len(optimized_data)} bytes")
+                return optimized_data
+        
+        return image_data
+    except Exception as e:
+        logger.error(f"Erreur d'optimisation d'image: {str(e)}")
+        return image_data
+
+def clean_temp_files():
+    """Nettoie les fichiers temporaires"""
+    try:
+        if os.path.exists(TEMP_DIR):
+            shutil.rmtree(TEMP_DIR)
+            os.makedirs(TEMP_DIR)
+    except Exception as e:
+        logger.error(f"Erreur de nettoyage des fichiers temporaires: {str(e)}")
+
 @app.route('/')
 def health_check():
     return jsonify({
         'status': 'running',
         'service': 'PDF Generator',
-        'version': '1.0.0',
-        'endpoints': {
-            'single_ticket': {'method': 'POST', 'path': '/generate-ticket'},
-            'multiple_tickets': {'method': 'POST', 'path': '/generate-multiple-tickets'}
-        }
+        'version': '1.1.0',
+        'temp_dir': TEMP_DIR,
+        'max_image_size': f"{MAX_IMAGE_SIZE/1024/1024:.1f}MB"
     }), 200
 
 @app.route('/generate-ticket', methods=['POST'])
 def generate_ticket():
+    clean_temp_files()
+    
     try:
         if not request.is_json:
             logger.warning('Requête non-JSON reçue')
@@ -54,23 +109,18 @@ def generate_ticket():
             
         ticket_data = data['ticket']
         
-        # Log des données reçues
-        logger.info(f"Données ticket reçues - Référence: {ticket_data.get('reference', 'inconnue')}")
-        logger.debug(f"Données complètes: { {k: v[:100] + '...' if isinstance(v, str) and len(v) > 100 else v for k, v in ticket_data.items()} }")
+        # Validation des données minimales
+        required_fields = ['event_title', 'reference', 'qr_code']
+        for field in required_fields:
+            if field not in ticket_data or not ticket_data[field]:
+                logger.error(f"Champ requis manquant: {field}")
+                return jsonify({'error': f'Field {field} is required'}), 400
         
-        # Vérification des images
-        if 'event_image' in ticket_data:
-            if ticket_data['event_image']:
-                logger.info(f"Image événement reçue - Taille: {len(ticket_data['event_image'])} caractères")
-            else:
-                logger.warning("Aucune image événement reçue")
+        # Optimisation des images
+        if 'event_image' in ticket_data and ticket_data['event_image']:
+            ticket_data['event_image'] = optimize_image(ticket_data['event_image'])
         
-        if 'qr_code' in ticket_data:
-            if ticket_data['qr_code']:
-                logger.info(f"QR Code reçu - Taille: {len(ticket_data['qr_code'])} caractères")
-            else:
-                logger.warning("Aucun QR Code reçu")
-        
+        # Préparation des données
         ticket_data.update({
             'generated_at': datetime.utcnow().isoformat(),
             'current_ticket': data.get('current_ticket', 1),
@@ -78,121 +128,136 @@ def generate_ticket():
             'format': data.get('format', DEFAULT_FORMAT)
         })
         
-        try:
-            # Validation des données avant génération
-            if not ticket_data.get('event_title'):
-                logger.error("Titre d'événement manquant")
-                return jsonify({'error': 'Event title is required'}), 400
-                
-            if not ticket_data.get('reference'):
-                logger.error("Référence de ticket manquante")
-                return jsonify({'error': 'Ticket reference is required'}), 400
-                
-            html = render_template("ticket_template.html", **ticket_data)
-            
-            # Log du HTML généré (partiel pour éviter la surcharge)
-            logger.debug(f"HTML généré (extrait): {html[:500]}...")
-            
-            css = CSS(string="""
-                @page {
-                    size: 180mm 70mm;
-                    margin: 0;
-                    padding: 0;
-                }
-                body {
-                    width: 180mm;
-                    height: 70mm;
-                    margin: 0;
-                    padding: 0;
-                    font-family: 'Montserrat', sans-serif;
-                    overflow: hidden;
-                }
-                /* ... autres règles CSS ... */
-            """)
-            
-            # Génération PDF avec vérification des images
-            try:
-                pdf = HTML(string=html).write_pdf(stylesheets=[css])
-                logger.info("PDF généré avec succès")
-            except Exception as e:
-                logger.error(f"Erreur WeasyPrint: {str(e)}")
-                # Tentative sans images en cas d'échec
-                if 'event_image' in ticket_data:
-                    ticket_data['event_image'] = None
-                    logger.warning("Nouvelle tentative sans image événement")
-                    html = render_template("ticket_template.html", **ticket_data)
-                    pdf = HTML(string=html).write_pdf(stylesheets=[css])
-                
-            return send_file(
-                io.BytesIO(pdf),
-                mimetype='application/pdf',
-                as_attachment=False,
-                download_name=f'ticket_{ticket_data.get("reference", "unknown")}.pdf'
-            )
-            
-        except Exception as e:
-            logger.error(f"Erreur de génération PDF: {str(e)}", exc_info=True)
-            return jsonify({
-                'error': 'PDF generation failed',
-                'details': str(e),
-                'image_received': 'event_image' in ticket_data and bool(ticket_data['event_image']),
-                'qr_received': 'qr_code' in ticket_data and bool(ticket_data['qr_code'])
-            }), 500
+        # Génération HTML
+        html = render_template("ticket_template.html", **ticket_data)
+        
+        # CSS optimisé
+        css = CSS(string="""
+            @page {
+                size: 180mm 70mm;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                width: 180mm;
+                height: 70mm;
+                margin: 0;
+                padding: 0;
+                font-family: 'Montserrat', sans-serif;
+                overflow: hidden;
+                -weasy-font-feature-settings: "kern" 1;
+                text-rendering: optimizeLegibility;
+            }
+            .ticket-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                position: relative;
+            }
+            .ticket-left {
+                width: 120mm;
+                height: 70mm;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                padding: 8mm 10mm;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+            .qr-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                image-rendering: -webkit-optimize-contrast;
+            }
+        """)
+        
+        # Génération PDF avec options optimisées
+        pdf = HTML(
+            string=html,
+            base_url=request.base_url
+        ).write_pdf(
+            stylesheets=[css],
+            optimize_images=True,
+            image_cache=None,  # Désactive le cache pour éviter les fuites mémoire
+            presentational_hints=True,
+            zoom=0.75  # Réduit légèrement la qualité pour améliorer les performances
+        )
+        
+        logger.info(f"PDF généré avec succès - Référence: {ticket_data['reference']}")
+        
+        return send_file(
+            io.BytesIO(pdf),
+            mimetype='application/pdf',
+            as_attachment=False,
+            download_name=f'ticket_{ticket_data["reference"]}.pdf'
+        )
             
     except Exception as e:
-        logger.critical(f"Erreur inattendue: {str(e)}", exc_info=True)
+        logger.error(f"Erreur de génération PDF: {str(e)}", exc_info=True)
         return jsonify({
-            'error': 'Internal server error',
-            'request_id': request.headers.get('X-Request-ID', 'none')
+            'error': 'PDF generation failed',
+            'details': str(e)
         }), 500
 
 @app.route('/generate-multiple-tickets', methods=['POST'])
 def generate_multiple_tickets():
+    clean_temp_files()
+    
     try:
         if not request.is_json:
-            logger.warning("Requête non-JSON pour multiple tickets")
             return jsonify({'error': 'Content-Type must be application/json'}), 400
             
         data = request.get_json()
         
         if not data or 'tickets' not in data:
-            logger.warning("Données tickets manquantes")
             return jsonify({'error': 'Tickets array is required'}), 400
             
         tickets = data['tickets']
-        format = data.get('format', DEFAULT_FORMAT)
         
-        logger.info(f"Demande de génération de {len(tickets)} tickets")
-        
-        if not isinstance(tickets, list):
-            logger.error("Tickets n'est pas un tableau")
-            return jsonify({'error': 'Tickets must be an array'}), 400
-            
+        # Validation de base
         if len(tickets) > MAX_TICKETS_PER_REQUEST:
-            logger.warning(f"Trop de tickets demandés ({len(tickets)} > {MAX_TICKETS_PER_REQUEST})")
             return jsonify({
                 'error': f'Too many tickets (max {MAX_TICKETS_PER_REQUEST})',
                 'received': len(tickets)
             }), 413
-            
-        # Statistiques sur les images reçues
-        tickets_with_images = sum(1 for t in tickets if t.get('event_image'))
-        tickets_with_qr = sum(1 for t in tickets if t.get('qr_code'))
         
-        logger.info(f"Statistiques - Tickets avec images: {tickets_with_images}/{len(tickets)}, QR codes: {tickets_with_qr}/{len(tickets)}")
-        
+        # Préparation des données
         generated_at = datetime.utcnow().isoformat()
         total_tickets = len(tickets)
+        format = data.get('format', DEFAULT_FORMAT)
         
-        html_pages = []
-        errors = []
-        for idx, ticket in enumerate(tickets, start=1):
+        # CSS partagé pour tous les tickets
+        css = CSS(string="""
+            @page {
+                size: 180mm 70mm;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                width: 180mm;
+                height: 70mm;
+                margin: 0;
+                padding: 0;
+                font-family: 'Montserrat', sans-serif;
+                overflow: hidden;
+            }
+        """)
+        
+        # Génération des PDF individuels
+        pdf_docs = []
+        for idx, ticket in enumerate(tickets[:MAX_TICKETS_PER_REQUEST], start=1):
             try:
-                # Validation des données minimales
-                if not ticket.get('event_title'):
-                    raise ValueError("Missing event_title")
-                if not ticket.get('reference'):
-                    raise ValueError("Missing reference")
+                # Validation des champs requis
+                if not all(ticket.get(field) for field in ['event_title', 'reference', 'qr_code']):
+                    continue
+                
+                # Optimisation des images
+                if 'event_image' in ticket and ticket['event_image']:
+                    ticket['event_image'] = optimize_image(ticket['event_image'])
                 
                 ticket.update({
                     'generated_at': generated_at,
@@ -202,68 +267,46 @@ def generate_multiple_tickets():
                 })
                 
                 html = render_template("ticket_template.html", **ticket)
-                html_pages.append(html)
+                pdf_doc = HTML(string=html).render(stylesheets=[css])
+                pdf_docs.append(pdf_doc)
                 
             except Exception as e:
-                error_msg = f"Erreur avec le ticket {idx} (ref: {ticket.get('reference', 'inconnue')}: {str(e)}"
-                logger.error(error_msg)
-                errors.append(error_msg)
+                logger.error(f"Erreur avec le ticket {idx}: {str(e)}")
                 continue
         
-        if not html_pages:
-            logger.error("Aucun ticket valide à générer")
-            return jsonify({
-                'error': 'No valid tickets to generate',
-                'details': errors
-            }), 400
+        if not pdf_docs:
+            return jsonify({'error': 'No valid tickets to generate'}), 400
         
-        try:
-            css = CSS(string="""
-                /* ... votre CSS existant ... */
-            """)
-            
-            logger.info("Début de la génération PDF...")
-            pdf_docs = [HTML(string=html).render(stylesheets=[css]) for html in html_pages]
-            main_doc = pdf_docs[0]
-            
-            for doc in pdf_docs[1:]:
-                main_doc.pages.extend(doc.pages)
-            
-            pdf_bytes = main_doc.write_pdf()
-            logger.info("PDF multi-tickets généré avec succès")
-            
-            first_ref = tickets[0].get('reference', 'start')
-            last_ref = tickets[-1].get('reference', 'end')
-            
-            return send_file(
-                io.BytesIO(pdf_bytes),
-                mimetype='application/pdf',
-                as_attachment=False,
-                download_name=f'tickets_{first_ref}_to_{last_ref}.pdf'
-            )
-            
-        except Exception as e:
-            logger.error(f"Erreur de fusion PDF: {str(e)}", exc_info=True)
-            return jsonify({
-                'error': 'PDF merge failed',
-                'details': str(e),
-                'tickets_processed': len(html_pages),
-                'errors': errors
-            }), 500
+        # Fusion des PDF
+        main_doc = pdf_docs[0]
+        for doc in pdf_docs[1:]:
+            main_doc.pages.extend(doc.pages)
+        
+        pdf_bytes = main_doc.write_pdf(
+            optimize_images=True,
+            image_cache=None
+        )
+        
+        first_ref = tickets[0].get('reference', 'start')
+        last_ref = tickets[-1].get('reference', 'end')
+        
+        return send_file(
+            io.BytesIO(pdf_bytes),
+            mimetype='application/pdf',
+            as_attachment=False,
+            download_name=f'tickets_{first_ref}_to_{last_ref}.pdf'
+        )
             
     except Exception as e:
-        logger.critical(f"Erreur inattendue (multi-tickets): {str(e)}", exc_info=True)
+        logger.error(f"Erreur de génération multiple: {str(e)}", exc_info=True)
         return jsonify({
-            'error': 'Internal server error',
-            'request_id': request.headers.get('X-Request-ID', 'none')
+            'error': 'PDF generation failed',
+            'details': str(e)
         }), 500
 
 @app.errorhandler(400)
 def bad_request(error):
-    return jsonify({
-        'error': 'Bad request',
-        'message': str(error.description) if hasattr(error, 'description') else None
-    }), 400
+    return jsonify({'error': 'Bad request'}), 400
 
 @app.errorhandler(404)
 def not_found(error):
@@ -274,8 +317,12 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(
-        host='0.0.0.0',
-        port=int(os.getenv('PORT', 5000)),
-        debug=os.getenv('DEBUG', 'false').lower() == 'true'
-    )
+    try:
+        app.run(
+            host='0.0.0.0',
+            port=int(os.getenv('PORT', 5000)),
+            threaded=True,
+            debug=False
+        )
+    finally:
+        clean_temp_files()
