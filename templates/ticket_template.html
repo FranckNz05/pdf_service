@@ -135,7 +135,7 @@
     }
 
     .ticket-type {
-      font-size: 6mm;
+      font-size: 4mm;
       font-weight: 700;
       color: #0F1A3D;
       margin-bottom: 3mm;
@@ -201,7 +201,7 @@
       <div class="ticket-type">{{ ticket_type }}</div>
       <div class="qr-container">
         {% if qr_code_url %}
-          <img src="{{ qr_code_url }}" alt="QR Code">
+        <img src="data:image/svg+xml;base64,{{ qr_code_url | b64encode }}" alt="QR Code">
         {% else %}
           <span>QR CODE</span>
         {% endif %}
