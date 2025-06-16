@@ -7,31 +7,31 @@
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap');
 
     @page {
-  size: 180mm 70mm;
-  margin: 0;
-  padding: 0;
-}
+      size: 180mm 70mm;
+      margin: 0;
+      padding: 0;
+    }
 
-body {
-  width: 180mm;
-  height: 70mm;
-  margin: 0;
-  padding: 0;
-  font-family: 'Montserrat', sans-serif;
-  overflow: hidden;
-  background: white;
-  position: relative;
-}
+    body {
+      width: 180mm;
+      height: 70mm;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
 
-.ticket-container {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  box-sizing: border-box;
-}
+    .ticket-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      box-sizing: border-box;
+    }
 
     .ticket-left {
       width: 120mm;
@@ -43,9 +43,10 @@ body {
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-      padding: 10mm 12mm;
+      padding: 8mm 10mm;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       box-sizing: border-box;
       position: relative;
     }
@@ -64,55 +65,63 @@ body {
     }
 
     .event-header {
-      margin-bottom: -5mm;
+      margin-bottom: 2mm;
       position: relative;
     }
 
     .event-title {
-      font-size: 9mm;
+      font-size: 7mm;
       font-weight: 900;
       margin: 0 0 2mm 0;
       line-height: 1.1;
       letter-spacing: -0.5px;
       text-transform: uppercase;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
     .event-date {
-      font-size: 5mm;
+      font-size: 4.5mm;
       margin: 0;
       font-weight: 600;
       color: #FFD700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .event-info {
-      margin: 7mm 0;
+      margin: 3mm 0;
+      flex-grow: 1;
     }
 
     .event-location {
-      font-size: 5mm;
-      margin: 0 0 2mm 0;
+      font-size: 4.5mm;
+      margin: 0 0 1mm 0;
       font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .event-address {
-      font-size: 4mm;
-      margin: 0 0 -12mm 0;
+      font-size: 3.5mm;
+      margin-top: 1mm;
       font-weight: 400;
-      opacity: 0.9;
+      opacity: 0.95;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .event-footer {
-      margin-top: -7mm;
+      margin-top: auto;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      width: 80%;
+      width: 100%;
+      padding-top: 3mm;
     }
 
     .organizer {
-      font-size: 4mm;
+      font-size: 3.5mm;
       margin: 0;
       font-weight: 400;
+      max-width: 60%;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .organizer strong {
@@ -123,21 +132,22 @@ body {
 
     .ticket-price {
       color: #FFD700;
-      font-size: 8mm;
+      font-size: 7mm;
       font-weight: 900;
       text-align: right;
       min-width: 40mm;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
     .ticket-right {
       width: 60mm;
       height: 70mm;
-      background: linear-gradient(to right, #0F1A3D 0%, #FFD700 100%);
+      background: linear-gradient(to bottom, #0F1A3D 0%, #FFD700 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 5mm;
+      padding: 4mm;
       box-sizing: border-box;
       position: relative;
     }
@@ -159,50 +169,83 @@ body {
     }
 
     .ticket-type {
-      font-size: 4mm;
+      font-size: 3.5mm;
       font-weight: 700;
       color: #0F1A3D;
-      margin: 0 0 5mm 0;
+      margin: 0 0 4mm 0;
       text-transform: uppercase;
       text-align: center;
-      padding: 2mm 4mm;
-      padding-top: -3mm;
+      padding: 2mm 3mm;
       background: #FFD700;
       border-radius: 2mm;
       width: 100%;
       box-sizing: border-box;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .qr-container {
-      width: 30mm;
-      height: 30mm;
+      width: 32mm;
+      height: 32mm;
       background: white;
       padding: 2mm;
-      border-radius: 2mm;
-      margin-bottom: 1mm;
+      border-radius: 3mm;
+      margin-bottom: 2mm;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border: 1px solid #e0e0e0;
     }
 
     .qr-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
+      display: block;
+    }
+
+    /* Fallback pour QR code manquant */
+    .qr-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2mm;
+      color: #666;
+      text-align: center;
+      border-radius: 1mm;
     }
 
     .ticket-number {
-      color: #ffffff;
-      font-size: 2mm;
+      color: #0F1A3D;
+      font-size: 2.5mm;
       font-weight: 600;
       margin: 0 0 1mm 0;
+      text-align: center;
     }
 
     .ticket-reference {
       font-size: 2mm;
-      color: #ffffff;
+      color: #666;
       font-weight: 400;
       text-align: center;
+      word-break: break-all;
+    }
+
+    /* Amélioration de la lisibilité */
+    .ticket-left * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Responsive pour impression */
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
     }
   </style>
 </head>
@@ -212,7 +255,7 @@ body {
     <div class="ticket-left">
       <div class="event-header">
         <h1 class="event-title">{{ event_title }}</h1>
-        <div class="event-date">e{{ event_date_time }}</div>
+        <div class="event-date">{{ event_date_time }}</div>
       </div>
       
       <div class="event-info">
@@ -232,13 +275,18 @@ body {
     <!-- Partie droite -->
     <div class="ticket-right">
       <div class="ticket-type">{{ ticket_type }}</div>
+      
       <div class="qr-container">
         {% if qr_code %}
-            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+          <img src="{{ qr_code }}" alt="QR Code" onerror="this.parentNode.innerHTML='<div class=\'qr-placeholder\'>QR Code<br>Non disponible</div>'">
         {% else %}
-            <div style="color: red; font-size: 3mm;">QR Code non généré</div>
+          <div class="qr-placeholder">
+            QR Code<br>
+            Non disponible
+          </div>
         {% endif %}
-    </div>
+      </div>
+      
       <div class="ticket-number">{{ current_ticket }}/{{ total_tickets }}</div>
       <div class="ticket-reference">{{ reference }}</div>
     </div>
