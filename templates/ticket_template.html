@@ -99,18 +99,18 @@
     .event-header {
       position: relative;
       z-index: 3;
-      margin-bottom: 4mm;
+      margin-bottom: 1mm;
     }
 
     .event-title {
-      font-size: 6.5mm;
+      font-size: 7.5mm;
       font-weight: 900;
       margin: 0 0 2mm 0;
       line-height: 0.95;
       letter-spacing: -0.5px;
       text-transform: uppercase;
       text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
-      color: #0F1A3D;
+      color: #ffffff;
     }
 
     .event-date-container {
@@ -152,7 +152,7 @@
       display: flex;
       align-items: center;
       gap: 2mm;
-      margin-bottom: 2mm;
+      margin-bottom: 1mm;
     }
 
     .info-row:last-child {
@@ -356,18 +356,18 @@
       <div class="event-header">
         <h1 class="event-title">{{ event_title }}</h1>
         <div class="event-date-container">
-          <i class="fas fa-calendar-alt date-icon"></i>
+          <i class="fas fa-calendar-alt date-icon" style="margin-right: 1mm;"></i>
           <div class="event-date">{{ event_date_time }}</div>
         </div>
       </div>
       
       <div class="event-info">
         <div class="info-row">
-          <i class="fas fa-map-marker-alt info-icon"></i>
+          <i class="fas fa-map-marker-alt info-icon" style="margin-right: 1mm;"></i>
           <div class="event-location">{{ event_location }}</div>
         </div>
         <div class="info-row">
-          <i class="fas fa-home info-icon"></i>
+          <i class="fas fa-home info-icon" style="margin-right: 1mm;"></i>
           <div class="event-address">{{ event_address }}</div>
         </div>
       </div>
