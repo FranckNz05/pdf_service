@@ -132,7 +132,7 @@ body {
     .ticket-right {
       width: 60mm;
       height: 70mm;
-      background: linear-gradient(to left, #0F1A3D 0%, #FFD700 100%);
+      background: linear-gradient(to right, #0F1A3D 0%, #FFD700 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -192,7 +192,7 @@ body {
     }
 
     .ticket-number {
-      color: #0F1A3D;
+      color: #ffffff;
       font-size: 2mm;
       font-weight: 600;
       margin: 0 0 1mm 0;
@@ -200,7 +200,7 @@ body {
 
     .ticket-reference {
       font-size: 2mm;
-      color: #666;
+      color: #ffffff;
       font-weight: 400;
       text-align: center;
     }
@@ -212,7 +212,7 @@ body {
     <div class="ticket-left">
       <div class="event-header">
         <h1 class="event-title">{{ event_title }}</h1>
-        <div class="event-date">{{ event_date_time }}</div>
+        <div class="event-date">e{{ event_date_time }}</div>
       </div>
       
       <div class="event-info">
