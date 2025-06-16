@@ -7,28 +7,31 @@
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap');
 
     @page {
-      size: 180mm 70mm;
-      margin: 0;
-      padding: 0;
-    }
+  size: 180mm 70mm;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      width: 180mm;
-      height: 70mm;
-      margin: 0;
-      padding: 0;
-      font-family: 'Montserrat', sans-serif;
-      overflow: hidden;
-      background: white;
-    }
+body {
+  width: 180mm;
+  height: 70mm;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  background: white;
+  position: relative;
+}
 
-    .ticket-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      position: relative;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
+.ticket-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  box-sizing: border-box;
+}
 
     .ticket-left {
       width: 120mm;
@@ -93,7 +96,7 @@
 
     .event-address {
       font-size: 4mm;
-      margin: 0;
+      margin: 0 0 -8mm 0;
       font-weight: 400;
       opacity: 0.9;
     }
