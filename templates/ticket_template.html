@@ -43,10 +43,10 @@
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-      padding: 8mm 10mm;
+      padding: 6mm 8mm;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       box-sizing: border-box;
       position: relative;
     }
@@ -65,22 +65,22 @@
     }
 
     .event-header {
-      margin-bottom: 2mm;
+      margin-bottom: 3mm;
       position: relative;
     }
 
     .event-title {
-      font-size: 7mm;
+      font-size: 6mm;
       font-weight: 900;
-      margin: 0 0 2mm 0;
-      line-height: 1.1;
-      letter-spacing: -0.5px;
+      margin: 0 0 1.5mm 0;
+      line-height: 1.0;
+      letter-spacing: -0.3px;
       text-transform: uppercase;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
     .event-date {
-      font-size: 4.5mm;
+      font-size: 4mm;
       margin: 0;
       font-weight: 600;
       color: #FFD700;
@@ -88,54 +88,57 @@
     }
 
     .event-info {
-      margin: 3mm 0;
-      flex-grow: 1;
+      margin: 2mm 0;
+      flex-grow: 0;
     }
 
     .event-location {
-      font-size: 4.5mm;
+      font-size: 4mm;
       margin: 0 0 1mm 0;
       font-weight: 700;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .event-address {
-      font-size: 3.5mm;
-      margin-top: 1mm;
+      font-size: 3mm;
+      margin-top: 0.5mm;
       font-weight: 400;
       opacity: 0.95;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .event-footer {
-      margin-top: auto;
+      margin-top: 4mm;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      padding-top: 3mm;
+      position: absolute;
+      bottom: 6mm;
+      left: 8mm;
+      right: 8mm;
     }
 
     .organizer {
-      font-size: 3.5mm;
+      font-size: 3mm;
       margin: 0;
       font-weight: 400;
-      max-width: 60%;
+      max-width: 55%;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     .organizer strong {
       font-weight: 700;
       display: block;
-      margin-top: 1mm;
+      margin-top: 0.5mm;
     }
 
     .ticket-price {
       color: #FFD700;
-      font-size: 7mm;
+      font-size: 6mm;
       font-weight: 900;
       text-align: right;
-      min-width: 40mm;
+      min-width: 35mm;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
@@ -146,8 +149,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 4mm;
+      justify-content: space-around;
+      padding: 3mm;
       box-sizing: border-box;
       position: relative;
     }
@@ -169,13 +172,13 @@
     }
 
     .ticket-type {
-      font-size: 3.5mm;
+      font-size: 3mm;
       font-weight: 700;
       color: #0F1A3D;
-      margin: 0 0 4mm 0;
+      margin: 0;
       text-transform: uppercase;
       text-align: center;
-      padding: 2mm 3mm;
+      padding: 1.5mm 2mm;
       background: #FFD700;
       border-radius: 2mm;
       width: 100%;
@@ -184,12 +187,12 @@
     }
 
     .qr-container {
-      width: 32mm;
-      height: 32mm;
+      width: 28mm;
+      height: 28mm;
       background: white;
-      padding: 2mm;
+      padding: 1.5mm;
       border-radius: 3mm;
-      margin-bottom: 2mm;
+      margin: 2mm 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -220,18 +223,19 @@
 
     .ticket-number {
       color: #0F1A3D;
-      font-size: 2.5mm;
+      font-size: 2.2mm;
       font-weight: 600;
-      margin: 0 0 1mm 0;
+      margin: 1mm 0;
       text-align: center;
     }
 
     .ticket-reference {
-      font-size: 2mm;
+      font-size: 1.8mm;
       color: #666;
       font-weight: 400;
       text-align: center;
       word-break: break-all;
+      margin: 0;
     }
 
     /* Amélioration de la lisibilité */
