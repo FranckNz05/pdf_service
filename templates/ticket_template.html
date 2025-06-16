@@ -106,7 +106,7 @@ body {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      width: 50%;
+      width: 80%;
     }
 
     .organizer {
@@ -132,7 +132,7 @@ body {
     .ticket-right {
       width: 60mm;
       height: 70mm;
-      background: linear-gradient(to bottom, #0F1A3D 0%, #FFD700 100%);
+      background: linear-gradient(to left, #0F1A3D 0%, #FFD700 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -166,6 +166,7 @@ body {
       text-transform: uppercase;
       text-align: center;
       padding: 2mm 4mm;
+      padding-top: -3mm;
       background: #FFD700;
       border-radius: 2mm;
       width: 100%;
@@ -233,7 +234,7 @@ body {
       <div class="ticket-type">{{ ticket_type }}</div>
       <div class="qr-container">
         {% if qr_code %}
-            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" onerror="this.style.display='none'; console.error('Failed to load QR code')">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
         {% else %}
             <div style="color: red; font-size: 3mm;">QR Code non généré</div>
         {% endif %}
