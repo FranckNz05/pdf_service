@@ -13,6 +13,10 @@
       padding: 0;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       width: 180mm;
       height: 70mm;
@@ -22,6 +26,9 @@
       overflow: hidden;
       background: white;
       position: relative;
+      /* Pour l'aperçu web */
+      transform-origin: top left;
+      transform: scale(2.5);
     }
 
     .ticket-container {
@@ -94,6 +101,12 @@
       border-radius: 3mm;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,215,0,0.3);
+      width: fit-content;
+    }
+
+    .date-icon {
+      color: #FFD700;
+      font-size: 3mm;
     }
 
     .event-date {
@@ -108,50 +121,65 @@
       margin: 1mm 0;
       background: rgba(0,0,0,0.2);
       border-radius: 3mm;
+      backdrop-filter: blur(5px);
     }
 
-    .event-location, .event-address {
+    .event-location {
       font-size: 3.5mm;
       margin: 0 0 1mm 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 1mm;
+    }
+
+    .event-address {
+      font-size: 3mm;
+      margin: 0;
+      opacity: 0.9;
+      padding-left: 4mm;
     }
 
     .event-footer {
       display: flex;
       justify-content: space-between;
-      align-items: center; /* Centrage vertical */
+      align-items: center;
     }
 
-    /* Organisateur avec taille augmentée */
     .organizer-container {
       flex: 1;
       padding: 2mm;
     }
 
     .organizer {
-      font-size: 3mm; /* Taille augmentée */
+      font-size: 3mm;
       margin: 0;
       font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 1mm;
     }
 
     .organizer strong {
       font-weight: 700;
-      display: block;
-      margin-top: 0.5mm;
       color: #FFD700;
-      font-size: 3.2mm; /* Légèrement plus grand */
+      font-size: 3.2mm;
+      margin-left: 1mm;
     }
 
-    /* Prix déplacé à gauche et taille augmentée */
     .price-container {
-      text-align: left; /* Alignement à gauche */
+      text-align: right;
       padding: 2mm;
-      margin-left: 3mm;
+      background: rgba(255,215,0,0.1);
+      border-radius: 3mm;
+      border: 1px solid #FFD700;
     }
 
     .ticket-price {
       color: #FFD700;
-      font-size: 5mm; /* Taille ajustée */
+      font-size: 5mm;
       font-weight: 900;
+      margin: 0;
     }
 
     /* Partie droite avec traits de découpe */
@@ -166,6 +194,7 @@
       padding: 3mm;
       box-sizing: border-box;
       position: relative;
+      color: white;
     }
 
     /* Traits de découpe à gauche */
@@ -190,16 +219,45 @@
       font-weight: 700;
       margin: 0 0 2mm 0;
       text-transform: uppercase;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 1mm;
+      background: rgba(255,255,255,0.1);
+      padding: 1mm 2mm;
+      border-radius: 2mm;
+      backdrop-filter: blur(10px);
     }
 
-    /* QR code réduit */
     .qr-container {
-      width: 20mm; /* Réduit */
+      width: 20mm;
       height: 20mm;
       background: white;
       padding: 1mm;
       border-radius: 2mm;
-      margin: 1mm 0;
+      margin: 2mm 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1mm 3mm rgba(0,0,0,0.3);
+    }
+
+    .qr-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .qr-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1mm;
+      color: #666;
+      font-size: 4mm;
     }
 
     .ticket-info {
@@ -207,10 +265,50 @@
       text-align: center;
     }
 
+    .ticket-number {
+      font-size: 2.5mm;
+      margin: 1mm 0;
+      opacity: 0.8;
+      font-weight: 600;
+    }
+
+    .ticket-reference {
+      font-size: 2mm;
+      margin: 1mm 0;
+      opacity: 0.6;
+      font-family: monospace;
+      letter-spacing: 0.5mm;
+    }
+
+    /* Styles pour l'impression PDF */
     @media print {
       body {
+        transform: none;
         -webkit-print-color-adjust: exact;
         color-adjust: exact;
+      }
+      
+      .ticket-container {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* Styles pour l'aperçu web responsive */
+    @media screen and (max-width: 1200px) {
+      body {
+        transform: scale(2);
+      }
+    }
+
+    @media screen and (max-width: 800px) {
+      body {
+        transform: scale(1.5);
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        transform: scale(1);
       }
     }
   </style>
@@ -228,7 +326,10 @@
       </div>
       
       <div class="event-info">
-        <div class="event-location">{{ event_location }}</div>
+        <div class="event-location">
+          <i class="fas fa-map-marker-alt"></i>
+          {{ event_location }}
+        </div>
         <div class="event-address">{{ event_address }}</div>
       </div>
       
@@ -257,7 +358,7 @@
         {% if qr_code %}
           <img src="{{ qr_code }}" alt="QR Code">
         {% else %}
-          <div style="width:100%;height:100%;background:#f8f8f8;display:flex;align-items:center;justify-content:center;">
+          <div class="qr-placeholder">
             <i class="fas fa-qrcode"></i>
           </div>
         {% endif %}
