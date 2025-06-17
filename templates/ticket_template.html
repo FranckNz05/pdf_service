@@ -15,6 +15,8 @@
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
@@ -52,7 +54,7 @@
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-      padding: 4mm 6mm;
+      padding: 5mm 8mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -79,13 +81,13 @@
     }
 
     .event-header {
-      margin-bottom: 1mm;
+      margin-bottom: 2mm;
     }
 
     .event-title {
-      font-size: 6.5mm;
+      font-size: 8mm;
       font-weight: 900;
-      margin: 0 0 1mm 0;
+      margin: 0 0 2mm 0;
       line-height: 1;
       letter-spacing: -0.5px;
       text-transform: uppercase;
@@ -97,7 +99,7 @@
       align-items: center;
       gap: 2mm;
       background: rgba(255,215,0,0.15);
-      padding: 1mm 2mm;
+      padding: 1.5mm 3mm;
       border-radius: 3mm;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,215,0,0.3);
@@ -106,70 +108,59 @@
 
     .date-icon {
       color: #FFD700;
-      font-size: 3mm;
+      font-size: 4mm;
     }
 
     .event-date {
-      font-size: 3.5mm;
+      font-size: 4mm;
       margin: 0;
       font-weight: 600;
       color: #FFD700;
     }
 
     .event-info {
-      padding: 2mm;
-      margin: 1mm 0;
-      background: rgba(0,0,0,0.2);
-      border-radius: 3mm;
-      backdrop-filter: blur(5px);
+      margin: 2mm 0;
     }
 
     .event-location {
-      font-size: 3.5mm;
+      font-size: 4mm;
       margin: 0 0 1mm 0;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 1mm;
+      gap: 2mm;
     }
 
     .event-address {
-      font-size: 3mm;
-      margin: 0;
+      font-size: 3.5mm;
+      margin: 1mm 0 0 5mm;
       opacity: 0.9;
-      padding-left: 4mm;
     }
 
     .event-footer {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-
-    .organizer-container {
-      flex: 1;
-      padding: 2mm;
+      align-items: flex-end;
     }
 
     .organizer {
-      font-size: 3mm;
+      font-size: 3.5mm;
       margin: 0;
       font-weight: 400;
       display: flex;
       align-items: center;
-      gap: 1mm;
+      gap: 2mm;
     }
 
     .organizer strong {
       font-weight: 700;
       color: #FFD700;
-      font-size: 3.2mm;
-      margin-left: 1mm;
+      font-size: 4mm;
     }
 
     .price-container {
       text-align: right;
-      padding: 2mm;
+      padding: 2mm 3mm;
       background: rgba(255,215,0,0.1);
       border-radius: 3mm;
       border: 1px solid #FFD700;
@@ -177,7 +168,7 @@
 
     .ticket-price {
       color: #FFD700;
-      font-size: 5mm;
+      font-size: 6mm;
       font-weight: 900;
       margin: 0;
     }
@@ -186,12 +177,12 @@
     .ticket-right {
       width: 60mm;
       height: 70mm;
-      background: linear-gradient(to bottom, #0F1A3D 0%, #2A3B71 50%, #FFD700 100%);
+      background: linear-gradient(to bottom, #0F1A3D 0%, #2A3B71 50%, #0F1A3D 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3mm;
+      padding: 5mm;
       box-sizing: border-box;
       position: relative;
       color: white;
@@ -215,25 +206,25 @@
     }
 
     .ticket-type {
-      font-size: 3mm;
+      font-size: 4mm;
       font-weight: 700;
-      margin: 0 0 2mm 0;
+      margin: 0 0 3mm 0;
       text-transform: uppercase;
       text-align: center;
       display: flex;
       align-items: center;
-      gap: 1mm;
+      gap: 2mm;
       background: rgba(255,255,255,0.1);
-      padding: 1mm 2mm;
+      padding: 1.5mm 3mm;
       border-radius: 2mm;
       backdrop-filter: blur(10px);
     }
 
     .qr-container {
-      width: 20mm;
-      height: 20mm;
+      width: 35mm;
+      height: 35mm;
       background: white;
-      padding: 1mm;
+      padding: 2mm;
       border-radius: 2mm;
       margin: 2mm 0;
       display: flex;
@@ -257,25 +248,24 @@
       justify-content: center;
       border-radius: 1mm;
       color: #666;
-      font-size: 4mm;
+      font-size: 8mm;
     }
 
     .ticket-info {
-      margin-top: 2mm;
+      margin-top: 3mm;
       text-align: center;
+      width: 100%;
     }
 
     .ticket-number {
-      font-size: 2.5mm;
+      font-size: 3.5mm;
       margin: 1mm 0;
-      opacity: 0.8;
       font-weight: 600;
     }
 
     .ticket-reference {
-      font-size: 2mm;
+      font-size: 3mm;
       margin: 1mm 0;
-      opacity: 0.6;
       font-family: monospace;
       letter-spacing: 0.5mm;
     }
@@ -334,12 +324,10 @@
       </div>
       
       <div class="event-footer">
-        <div class="organizer-container">
-          <div class="organizer">
-            <i class="fas fa-user-tie"></i>
-            Organisé par
-            <strong>{{ organizer_name }}</strong>
-          </div>
+        <div class="organizer">
+          <i class="fas fa-user-tie"></i>
+          Organisé par
+          <strong>{{ organizer_name }}</strong>
         </div>
         <div class="price-container">
           <div class="ticket-price">{{ ticket_price }}</div>
@@ -366,7 +354,9 @@
       
       <div class="ticket-info">
         <div class="ticket-number">Billet {{ current_ticket }}/{{ total_tickets }}</div>
-        <div class="ticket-reference">{{ reference }}</div>
+        <div class="ticket-reference">{{ reference_line1 }}</div>
+        <div class="ticket-reference">{{ reference_line2 }}</div>
+        <div class="ticket-reference">{{ reference_line3 }}</div>
       </div>
     </div>
   </div>
