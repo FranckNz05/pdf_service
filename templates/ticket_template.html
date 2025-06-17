@@ -2,23 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Billet d'événement</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billet d'événement Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap');
-
+    
     @page {
       size: 180mm 70mm;
       margin: 0;
       padding: 0;
     }
-
+    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
+    
     body {
       width: 180mm;
       height: 70mm;
@@ -28,22 +30,19 @@
       overflow: hidden;
       background: white;
       position: relative;
-      /* Pour l'aperçu web */
       transform-origin: top left;
       transform: scale(2.5);
     }
-
+    
     .ticket-container {
       width: 100%;
       height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
       display: flex;
-      box-sizing: border-box;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
     }
-
-    /* Partie gauche avec traits de découpe */
+    
     .ticket-left {
       width: 120mm;
       height: 70mm;
@@ -58,12 +57,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-sizing: border-box;
       position: relative;
       overflow: hidden;
+      transition: all 0.3s ease;
     }
-
-    /* Traits de découpe à droite */
+    
     .ticket-left::before {
       content: "";
       position: absolute;
@@ -78,12 +76,26 @@
         #FFD700 2mm,
         #FFD700 4mm
       );
+      z-index: 1;
     }
-
+    
+    .ticket-left::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(15, 26, 61, 0.7) 0%, rgba(42, 59, 113, 0.6) 50%, rgba(15, 26, 61, 0.7) 100%);
+      z-index: 0;
+    }
+    
     .event-header {
+      position: relative;
+      z-index: 2;
       margin-bottom: 2mm;
     }
-
+    
     .event-title {
       font-size: 8mm;
       font-weight: 900;
@@ -92,8 +104,9 @@
       letter-spacing: -0.5px;
       text-transform: uppercase;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
     }
-
+    
     .event-date-container {
       display: flex;
       align-items: center;
@@ -104,24 +117,27 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,215,0,0.3);
       width: fit-content;
+      transition: all 0.3s ease;
     }
-
+    
     .date-icon {
       color: #FFD700;
       font-size: 4mm;
     }
-
+    
     .event-date {
       font-size: 4mm;
       margin: 0;
       font-weight: 600;
       color: #FFD700;
     }
-
+    
     .event-info {
       margin: 2mm 0;
+      position: relative;
+      z-index: 2;
     }
-
+    
     .event-location {
       font-size: 4mm;
       margin: 0 0 1mm 0;
@@ -130,19 +146,21 @@
       align-items: center;
       gap: 2mm;
     }
-
+    
     .event-address {
       font-size: 3.5mm;
       margin: 1mm 0 0 5mm;
       opacity: 0.9;
     }
-
+    
     .event-footer {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      position: relative;
+      z-index: 2;
     }
-
+    
     .organizer {
       font-size: 3.5mm;
       margin: 0;
@@ -151,29 +169,29 @@
       align-items: center;
       gap: 2mm;
     }
-
+    
     .organizer strong {
       font-weight: 700;
       color: #FFD700;
       font-size: 4mm;
     }
-
+    
     .price-container {
       text-align: right;
       padding: 2mm 3mm;
       background: rgba(255,215,0,0.1);
       border-radius: 3mm;
       border: 1px solid #FFD700;
+      transition: all 0.3s ease;
     }
-
+    
     .ticket-price {
       color: #FFD700;
       font-size: 6mm;
       font-weight: 900;
       margin: 0;
     }
-
-    /* Partie droite avec traits de découpe */
+    
     .ticket-right {
       width: 60mm;
       height: 70mm;
@@ -183,12 +201,10 @@
       align-items: center;
       justify-content: center;
       padding: 5mm;
-      box-sizing: border-box;
       position: relative;
       color: white;
     }
-
-    /* Traits de découpe à gauche */
+    
     .ticket-right::before {
       content: "";
       position: absolute;
@@ -203,8 +219,9 @@
         #FFD700 2mm,
         #FFD700 4mm
       );
+      z-index: 1;
     }
-
+    
     .ticket-type {
       font-size: 4mm;
       font-weight: 700;
@@ -218,8 +235,10 @@
       padding: 1.5mm 3mm;
       border-radius: 2mm;
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 2;
     }
-
+    
     .qr-container {
       width: 35mm;
       height: 35mm;
@@ -231,14 +250,21 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 1mm 3mm rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
     }
-
+    
+    .qr-container:hover {
+      transform: scale(1.05);
+    }
+    
     .qr-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
-
+    
     .qr-placeholder {
       width: 100%;
       height: 100%;
@@ -250,26 +276,51 @@
       color: #666;
       font-size: 8mm;
     }
-
+    
     .ticket-info {
       margin-top: 3mm;
       text-align: center;
       width: 100%;
+      position: relative;
+      z-index: 2;
     }
-
+    
     .ticket-number {
       font-size: 3.5mm;
       margin: 1mm 0;
       font-weight: 600;
     }
-
+    
     .ticket-reference {
       font-size: 3mm;
       margin: 1mm 0;
       font-family: monospace;
       letter-spacing: 0.5mm;
     }
-
+    
+    /* Effet de brillance */
+    .shine-effect {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      animation: shine 3s infinite;
+      z-index: 1;
+    }
+    
+    @keyframes shine {
+      100% {
+        left: 100%;
+      }
+    }
+    
     /* Styles pour l'impression PDF */
     @media print {
       body {
@@ -281,21 +332,25 @@
       .ticket-container {
         page-break-inside: avoid;
       }
+      
+      .shine-effect {
+        display: none;
+      }
     }
-
+    
     /* Styles pour l'aperçu web responsive */
     @media screen and (max-width: 1200px) {
       body {
         transform: scale(2);
       }
     }
-
+    
     @media screen and (max-width: 800px) {
       body {
         transform: scale(1.5);
       }
     }
-
+    
     @media screen and (max-width: 600px) {
       body {
         transform: scale(1);
@@ -304,12 +359,14 @@
   </style>
 </head>
 <body>
-  <div class="ticket-container">
+  <div class="ticket-container group">
     <!-- Partie gauche -->
     <div class="ticket-left">
+      <div class="shine-effect"></div>
+      
       <div class="event-header">
-        <h1 class="event-title">{{ event_title }}</h1>
-        <div class="event-date-container">
+        <h1 class="event-title group-hover:text-gold-200 transition-all duration-300">{{ event_title }}</h1>
+        <div class="event-date-container group-hover:bg-gold-500/20 transition-all duration-300">
           <i class="fas fa-calendar-alt date-icon"></i>
           <div class="event-date">{{ event_date_time }}</div>
         </div>
@@ -329,14 +386,16 @@
           Organisé par
           <strong>{{ organizer_name }}</strong>
         </div>
-        <div class="price-container">
+        <div class="price-container group-hover:bg-gold-500/20 group-hover:border-gold-400 transition-all duration-300">
           <div class="ticket-price">{{ ticket_price }}</div>
         </div>
       </div>
     </div>
-  
+    
     <!-- Partie droite -->
     <div class="ticket-right">
+      <div class="shine-effect"></div>
+      
       <div class="ticket-type">
         <i class="fas fa-ticket-alt"></i>
         {{ ticket_type }}
@@ -360,5 +419,20 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Animation supplémentaire au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+      const ticket = document.querySelector('.ticket-container');
+      ticket.style.opacity = '0';
+      ticket.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        ticket.style.transition = 'all 0.5s ease-out';
+        ticket.style.opacity = '1';
+        ticket.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  </script>
 </body>
 </html>
