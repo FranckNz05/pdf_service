@@ -2,25 +2,23 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Billet d'événement Premium</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Billet d'événement</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap');
-    
+
     @page {
       size: 180mm 70mm;
       margin: 0;
       padding: 0;
     }
-    
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
+
     body {
       width: 180mm;
       height: 70mm;
@@ -30,241 +28,236 @@
       overflow: hidden;
       background: white;
       position: relative;
+      /* Pour l'aperçu web */
       transform-origin: top left;
-      transform: scale(2.5);
+      transform: scale(1.5);
     }
-    
+
     .ticket-container {
       width: 100%;
       height: 100%;
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
       display: flex;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
+      box-sizing: border-box;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
-    
+
+    /* Partie gauche avec traits de découpe */
     .ticket-left {
-      width: 120mm;
-      height: 70mm;
+      width: 115mm;
+      height: calc(70mm - 4px);
       background-image: 
-        linear-gradient(135deg, rgba(15, 26, 61, 0.85) 0%, rgba(42, 59, 113, 0.9) 50%, rgba(15, 26, 61, 0.95) 100%),
+        linear-gradient(135deg, rgba(15, 26, 61, 0.88) 0%, rgba(42, 59, 113, 0.92) 50%, rgba(15, 26, 61, 0.95) 100%),
         url('{% if event_image %}data:{{ image_mime_type }};base64,{{ event_image }}{% else %}https://images.unsplash.com/photo-1531058020387-3be344556be6{% endif %}');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-      padding: 5mm 8mm;
+      padding: 6mm 8mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      box-sizing: border-box;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
     }
-    
-    .ticket-left::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 4mm;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0mm,
-        transparent 2mm,
-        #FFD700 2mm,
-        #FFD700 4mm
-      );
-      z-index: 1;
-    }
-    
+
+    /* Traits de découpe perfectionnés */
     .ticket-left::after {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(15, 26, 61, 0.7) 0%, rgba(42, 59, 113, 0.6) 50%, rgba(15, 26, 61, 0.7) 100%);
-      z-index: 0;
+      top: 8mm;
+      right: -1px;
+      bottom: 8mm;
+      width: 3px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0mm,
+        transparent 1.5mm,
+        #FFD700 1.5mm,
+        #FFD700 3mm
+      );
+      border-radius: 2px;
     }
-    
+
     .event-header {
-      position: relative;
-      z-index: 2;
-      margin-bottom: 2mm;
+      margin-bottom: 3mm;
     }
-    
+
     .event-title {
-      font-size: 8mm;
+      font-size: 7.5mm;
       font-weight: 900;
-      margin: 0 0 2mm 0;
-      line-height: 1;
-      letter-spacing: -0.5px;
+      margin: 0 0 2.5mm 0;
+      line-height: 0.95;
+      letter-spacing: -0.3px;
       text-transform: uppercase;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-      transition: all 0.3s ease;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+      max-width: 90mm;
     }
-    
+
     .event-date-container {
       display: flex;
       align-items: center;
       gap: 2mm;
-      background: rgba(255,215,0,0.15);
-      padding: 1.5mm 3mm;
-      border-radius: 3mm;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.2);
+      padding: 2mm 4mm;
+      border-radius: 4mm;
+      backdrop-filter: blur(15px);
+      border: 1.5px solid rgba(255,215,0,0.4);
       width: fit-content;
-      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    
+
     .date-icon {
       color: #FFD700;
-      font-size: 4mm;
+      font-size: 4.2mm;
     }
-    
+
     .event-date {
-      font-size: 4mm;
+      font-size: 4.2mm;
       margin: 0;
-      font-weight: 600;
+      font-weight: 700;
       color: #FFD700;
     }
-    
+
     .event-info {
       margin: 2mm 0;
-      position: relative;
-      z-index: 2;
+      flex-grow: 1;
     }
-    
+
     .event-location {
-      font-size: 4mm;
-      margin: 0 0 1mm 0;
+      font-size: 4.2mm;
+      margin: 0 0 1.5mm 0;
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 2mm;
     }
-    
+
     .event-address {
-      font-size: 3.5mm;
-      margin: 1mm 0 0 5mm;
-      opacity: 0.9;
+      font-size: 3.8mm;
+      margin: 1mm 0 0 6mm;
+      opacity: 0.95;
+      font-weight: 400;
     }
-    
+
     .event-footer {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      position: relative;
-      z-index: 2;
+      margin-top: 2mm;
     }
-    
+
     .organizer {
-      font-size: 3.5mm;
+      font-size: 3.8mm;
       margin: 0;
       font-weight: 400;
       display: flex;
       align-items: center;
       gap: 2mm;
     }
-    
+
     .organizer strong {
       font-weight: 700;
       color: #FFD700;
-      font-size: 4mm;
+      font-size: 4.2mm;
     }
-    
+
     .price-container {
       text-align: right;
-      padding: 2mm 3mm;
-      background: rgba(255,215,0,0.1);
-      border-radius: 3mm;
-      border: 1px solid #FFD700;
-      transition: all 0.3s ease;
+      padding: 2.5mm 4mm;
+      background: rgba(255,215,0,0.15);
+      border-radius: 4mm;
+      border: 1.5px solid #FFD700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    
+
     .ticket-price {
       color: #FFD700;
-      font-size: 6mm;
+      font-size: 6.5mm;
       font-weight: 900;
       margin: 0;
     }
-    
+
+    /* Partie droite optimisée pour le QR code */
     .ticket-right {
-      width: 60mm;
-      height: 70mm;
-      background: linear-gradient(to bottom, #0F1A3D 0%, #2A3B71 50%, #0F1A3D 100%);
+      width: 65mm;
+      height: calc(70mm - 4px);
+      background: linear-gradient(135deg, #0F1A3D 0%, #2A3B71 50%, #1A2B5F 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 5mm;
+      padding: 4mm;
+      box-sizing: border-box;
       position: relative;
       color: white;
     }
-    
+
+    /* Traits de découpe perfectionnés */
     .ticket-right::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4mm;
+      left: -1px;
+      top: 8mm;
+      bottom: 8mm;
+      width: 3px;
       background: repeating-linear-gradient(
         to bottom,
         transparent 0mm,
-        transparent 2mm,
-        #FFD700 2mm,
-        #FFD700 4mm
+        transparent 1.5mm,
+        #FFD700 1.5mm,
+        #FFD700 3mm
       );
-      z-index: 1;
+      border-radius: 2px;
     }
-    
+
     .ticket-type {
-      font-size: 4mm;
+      font-size: 3.8mm;
       font-weight: 700;
-      margin: 0 0 3mm 0;
+      margin: 0 0 4mm 0;
       text-transform: uppercase;
       text-align: center;
       display: flex;
       align-items: center;
       gap: 2mm;
-      background: rgba(255,255,255,0.1);
-      padding: 1.5mm 3mm;
-      border-radius: 2mm;
+      background: rgba(255,255,255,0.15);
+      padding: 2mm 4mm;
+      border-radius: 3mm;
       backdrop-filter: blur(10px);
-      position: relative;
-      z-index: 2;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    
+
+    /* QR Code optimisé pour l'impression */
     .qr-container {
-      width: 35mm;
-      height: 35mm;
+      width: 40mm;
+      height: 40mm;
       background: white;
-      padding: 2mm;
-      border-radius: 2mm;
-      margin: 2mm 0;
+      padding: 2.5mm;
+      border-radius: 3mm;
+      margin: 3mm 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1mm 3mm rgba(0,0,0,0.3);
-      position: relative;
-      z-index: 2;
-      transition: all 0.3s ease;
+      box-shadow: 0 3mm 15mm rgba(0,0,0,0.3);
+      border: 2px solid #f0f0f0;
     }
-    
-    .qr-container:hover {
-      transform: scale(1.05);
-    }
-    
+
     .qr-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
-    
+
     .qr-placeholder {
       width: 100%;
       height: 100%;
@@ -272,101 +265,97 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 1mm;
+      border-radius: 2mm;
       color: #666;
-      font-size: 8mm;
+      font-size: 12mm;
+      border: 2px dashed #ccc;
     }
-    
+
     .ticket-info {
-      margin-top: 3mm;
+      margin-top: 4mm;
       text-align: center;
       width: 100%;
-      position: relative;
-      z-index: 2;
     }
-    
+
     .ticket-number {
       font-size: 3.5mm;
-      margin: 1mm 0;
+      margin: 2mm 0;
+      font-weight: 600;
+      background: rgba(255,215,0,0.1);
+      padding: 1.5mm 3mm;
+      border-radius: 2mm;
+      border: 1px solid rgba(255,215,0,0.3);
+    }
+
+    .ticket-reference {
+      font-size: 3.2mm;
+      margin: 1.5mm 0 0 0;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.8mm;
+      color: #FFD700;
       font-weight: 600;
     }
-    
-    .ticket-reference {
-      font-size: 3mm;
-      margin: 1mm 0;
-      font-family: monospace;
-      letter-spacing: 0.5mm;
-    }
-    
-    /* Effet de brillance */
-    .shine-effect {
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        rgba(255, 255, 255, 0) 100%
-      );
-      animation: shine 3s infinite;
-      z-index: 1;
-    }
-    
-    @keyframes shine {
-      100% {
-        left: 100%;
-      }
-    }
-    
-    /* Styles pour l'impression PDF */
+
+    /* Styles pour l'impression PDF optimisés */
     @media print {
       body {
-        transform: none;
-        -webkit-print-color-adjust: exact;
-        color-adjust: exact;
+        transform: none !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       
       .ticket-container {
         page-break-inside: avoid;
+        border: 2px solid #FFD700 !important;
       }
-      
-      .shine-effect {
-        display: none;
+
+      .qr-container {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .qr-container img {
+        image-rendering: -webkit-optimize-contrast !important;
+        image-rendering: crisp-edges !important;
+        image-rendering: pixelated !important;
       }
     }
-    
+
     /* Styles pour l'aperçu web responsive */
-    @media screen and (max-width: 1200px) {
+    @media screen and (max-width: 1400px) {
       body {
-        transform: scale(2);
+        transform: scale(1.2);
       }
     }
-    
-    @media screen and (max-width: 800px) {
-      body {
-        transform: scale(1.5);
-      }
-    }
-    
-    @media screen and (max-width: 600px) {
+
+    @media screen and (max-width: 1000px) {
       body {
         transform: scale(1);
+      }
+    }
+
+    @media screen and (max-width: 800px) {
+      body {
+        transform: scale(0.8);
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        transform: scale(0.6);
       }
     }
   </style>
 </head>
 <body>
-  <div class="ticket-container group">
+  <div class="ticket-container">
     <!-- Partie gauche -->
     <div class="ticket-left">
-      <div class="shine-effect"></div>
-      
       <div class="event-header">
-        <h1 class="event-title group-hover:text-gold-200 transition-all duration-300">{{ event_title }}</h1>
-        <div class="event-date-container group-hover:bg-gold-500/20 transition-all duration-300">
+        <h1 class="event-title">{{ event_title }}</h1>
+        <div class="event-date-container">
           <i class="fas fa-calendar-alt date-icon"></i>
           <div class="event-date">{{ event_date_time }}</div>
         </div>
@@ -386,16 +375,14 @@
           Organisé par
           <strong>{{ organizer_name }}</strong>
         </div>
-        <div class="price-container group-hover:bg-gold-500/20 group-hover:border-gold-400 transition-all duration-300">
+        <div class="price-container">
           <div class="ticket-price">{{ ticket_price }}</div>
         </div>
       </div>
     </div>
-    
+  
     <!-- Partie droite -->
     <div class="ticket-right">
-      <div class="shine-effect"></div>
-      
       <div class="ticket-type">
         <i class="fas fa-ticket-alt"></i>
         {{ ticket_type }}
@@ -413,26 +400,9 @@
       
       <div class="ticket-info">
         <div class="ticket-number">Billet {{ current_ticket }}/{{ total_tickets }}</div>
-        <div class="ticket-reference">{{ reference_line1 }}</div>
-        <div class="ticket-reference">{{ reference_line2 }}</div>
-        <div class="ticket-reference">{{ reference_line3 }}</div>
+        <div class="ticket-reference">{{ reference }}</div>
       </div>
     </div>
   </div>
-
-  <script>
-    // Animation supplémentaire au chargement
-    document.addEventListener('DOMContentLoaded', () => {
-      const ticket = document.querySelector('.ticket-container');
-      ticket.style.opacity = '0';
-      ticket.style.transform = 'translateY(20px)';
-      
-      setTimeout(() => {
-        ticket.style.transition = 'all 0.5s ease-out';
-        ticket.style.opacity = '1';
-        ticket.style.transform = 'translateY(0)';
-      }, 100);
-    });
-  </script>
 </body>
 </html>
