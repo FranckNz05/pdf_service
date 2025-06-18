@@ -5,7 +5,7 @@
   <title>Billet d'événement</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
     @page {
       size: 180mm 70mm;
@@ -24,13 +24,10 @@
       height: 70mm;
       margin: 0;
       padding: 0;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Inter', sans-serif;
       overflow: hidden;
       background: white;
       position: relative;
-      /* Pour l'aperçu web */
-      transform-origin: top left;
-      transform: scale(1.5);
     }
 
     .ticket-container {
@@ -41,24 +38,24 @@
       left: 0;
       display: flex;
       box-sizing: border-box;
-      border: 2px solid #FFD700;
+      border: 2px solid #0F1A3D;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
 
-    /* Partie gauche avec traits de découpe */
+    /* Partie gauche avec image de fond */
     .ticket-left {
-      width: 115mm;
+      width: 120mm;
       height: calc(70mm - 4px);
       background-image: 
-        linear-gradient(135deg, rgba(15, 26, 61, 0.88) 0%, rgba(42, 59, 113, 0.92) 50%, rgba(15, 26, 61, 0.95) 100%),
-        url('{% if event_image %}data:{{ image_mime_type }};base64,{{ event_image }}{% else %}https://images.unsplash.com/photo-1531058020387-3be344556be6{% endif %}');
+        linear-gradient(135deg, rgba(15, 26, 61, 0.85) 0%, rgba(15, 26, 61, 0.9) 100%),
+        url('{{ event_image if event_image else "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" }}');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-      padding: 6mm 8mm;
+      padding: 8mm 10mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -67,37 +64,36 @@
       overflow: hidden;
     }
 
-    /* Traits de découpe perfectionnés */
+    /* Traits de découpe */
     .ticket-left::after {
       content: "";
       position: absolute;
       top: 8mm;
       right: -1px;
       bottom: 8mm;
-      width: 3px;
+      width: 2px;
       background: repeating-linear-gradient(
         to bottom,
         transparent 0mm,
-        transparent 1.5mm,
-        #FFD700 1.5mm,
-        #FFD700 3mm
+        transparent 2mm,
+        #e0e0e0 2mm,
+        #e0e0e0 4mm
       );
-      border-radius: 2px;
     }
 
     .event-header {
-      margin-bottom: 3mm;
+      margin-bottom: 4mm;
     }
 
     .event-title {
-      font-size: 7.5mm;
-      font-weight: 900;
-      margin: 0 0 2.5mm 0;
-      line-height: 0.95;
-      letter-spacing: -0.3px;
+      font-size: 8mm;
+      font-weight: 800;
+      margin: 0 0 3mm 0;
+      line-height: 0.9;
+      letter-spacing: -0.2px;
       text-transform: uppercase;
       text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-      max-width: 90mm;
+      max-width: 100mm;
     }
 
     .event-date-container {
@@ -108,18 +104,18 @@
       padding: 2mm 4mm;
       border-radius: 4mm;
       backdrop-filter: blur(15px);
-      border: 1.5px solid rgba(255,215,0,0.4);
+      border: 1px solid rgba(255,215,0,0.4);
       width: fit-content;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     .date-icon {
       color: #FFD700;
-      font-size: 4.2mm;
+      font-size: 4mm;
     }
 
     .event-date {
-      font-size: 4.2mm;
+      font-size: 4mm;
       margin: 0;
       font-weight: 700;
       color: #FFD700;
@@ -131,7 +127,7 @@
     }
 
     .event-location {
-      font-size: 4.2mm;
+      font-size: 4.5mm;
       margin: 0 0 1.5mm 0;
       font-weight: 600;
       display: flex;
@@ -140,7 +136,7 @@
     }
 
     .event-address {
-      font-size: 3.8mm;
+      font-size: 3.5mm;
       margin: 1mm 0 0 6mm;
       opacity: 0.95;
       font-weight: 400;
@@ -154,7 +150,7 @@
     }
 
     .organizer {
-      font-size: 3.8mm;
+      font-size: 3.5mm;
       margin: 0;
       font-weight: 400;
       display: flex;
@@ -165,7 +161,7 @@
     .organizer strong {
       font-weight: 700;
       color: #FFD700;
-      font-size: 4.2mm;
+      font-size: 4mm;
     }
 
     .price-container {
@@ -173,22 +169,22 @@
       padding: 2.5mm 4mm;
       background: rgba(255,215,0,0.15);
       border-radius: 4mm;
-      border: 1.5px solid #FFD700;
+      border: 1px solid #FFD700;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     .ticket-price {
       color: #FFD700;
-      font-size: 6.5mm;
+      font-size: 6mm;
       font-weight: 900;
       margin: 0;
     }
 
     /* Partie droite optimisée pour le QR code */
     .ticket-right {
-      width: 65mm;
+      width: 60mm;
       height: calc(70mm - 4px);
-      background: linear-gradient(135deg, #0F1A3D 0%, #2A3B71 50%, #1A2B5F 100%);
+      background: linear-gradient(135deg, #0F1A3D 0%, #1A2B5F 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -196,29 +192,28 @@
       padding: 4mm;
       box-sizing: border-box;
       position: relative;
-      color: white;
+      color: #FFD700;
     }
 
-    /* Traits de découpe perfectionnés */
+    /* Traits de découpe */
     .ticket-right::before {
       content: "";
       position: absolute;
       left: -1px;
       top: 8mm;
       bottom: 8mm;
-      width: 3px;
+      width: 2px;
       background: repeating-linear-gradient(
         to bottom,
         transparent 0mm,
-        transparent 1.5mm,
-        #FFD700 1.5mm,
-        #FFD700 3mm
+        transparent 2mm,
+        #e0e0e0 2mm,
+        #e0e0e0 4mm
       );
-      border-radius: 2px;
     }
 
     .ticket-type {
-      font-size: 3.8mm;
+      font-size: 3.5mm;
       font-weight: 700;
       margin: 0 0 4mm 0;
       text-transform: uppercase;
@@ -226,20 +221,19 @@
       display: flex;
       align-items: center;
       gap: 2mm;
-      background: rgba(255,255,255,0.15);
+      background: #0F1A3D;
+      color: #FFD700;
       padding: 2mm 4mm;
       border-radius: 3mm;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    /* QR Code optimisé pour l'impression */
+    /* QR Code optimisé pour WeasyPrint */
     .qr-container {
-      width: 40mm;
-      height: 40mm;
+      width: 35mm;
+      height: 35mm;
       background: white;
-      padding: 2.5mm;
+      padding: 2mm;
       border-radius: 3mm;
       margin: 3mm 0;
       display: flex;
@@ -267,7 +261,7 @@
       justify-content: center;
       border-radius: 2mm;
       color: #666;
-      font-size: 12mm;
+      font-size: 8mm;
       border: 2px dashed #ccc;
     }
 
@@ -278,28 +272,30 @@
     }
 
     .ticket-number {
-      font-size: 3.5mm;
+      font-size: 3.2mm;
       margin: 2mm 0;
       font-weight: 600;
-      background: rgba(255,215,0,0.1);
+      background: #0F1A3D;
+      color: #FFD700;
       padding: 1.5mm 3mm;
       border-radius: 2mm;
-      border: 1px solid rgba(255,215,0,0.3);
     }
 
     .ticket-reference {
-      font-size: 3.2mm;
+      font-size: 3mm;
       margin: 1.5mm 0 0 0;
       font-family: 'Courier New', monospace;
-      letter-spacing: 0.8mm;
+      letter-spacing: 0.5mm;
       color: #FFD700;
-      font-weight: 600;
+      background: rgba(15, 26, 61, 0.1);
+      padding: 1mm 2mm;
+      border-radius: 2mm;
+      border: 1px solid rgba(255, 215, 0, 0.3);
     }
 
-    /* Styles pour l'impression PDF optimisés */
+    /* Styles pour l'impression PDF */
     @media print {
       body {
-        transform: none !important;
         -webkit-print-color-adjust: exact !important;
         color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -307,7 +303,7 @@
       
       .ticket-container {
         page-break-inside: avoid;
-        border: 2px solid #FFD700 !important;
+        border: 2px solid #0F1A3D !important;
       }
 
       .qr-container {
@@ -322,31 +318,6 @@
         image-rendering: pixelated !important;
       }
     }
-
-    /* Styles pour l'aperçu web responsive */
-    @media screen and (max-width: 1400px) {
-      body {
-        transform: scale(1.2);
-      }
-    }
-
-    @media screen and (max-width: 1000px) {
-      body {
-        transform: scale(1);
-      }
-    }
-
-    @media screen and (max-width: 800px) {
-      body {
-        transform: scale(0.8);
-      }
-    }
-
-    @media screen and (max-width: 600px) {
-      body {
-        transform: scale(0.6);
-      }
-    }
   </style>
 </head>
 <body>
@@ -354,29 +325,31 @@
     <!-- Partie gauche -->
     <div class="ticket-left">
       <div class="event-header">
-        <h1 class="event-title">{{ event_title }}</h1>
+        <h1 class="event-title">{{ event_title | default('ÉVÉNEMENT') }}</h1>
         <div class="event-date-container">
           <i class="fas fa-calendar-alt date-icon"></i>
-          <div class="event-date">{{ event_date_time }}</div>
+          <div class="event-date">{{ event_date_time | default('Date à définir') }}</div>
         </div>
       </div>
       
       <div class="event-info">
         <div class="event-location">
           <i class="fas fa-map-marker-alt"></i>
-          {{ event_location }}
+          {{ event_location | default('Lieu à définir') }}
         </div>
+        {% if event_address %}
         <div class="event-address">{{ event_address }}</div>
+        {% endif %}
       </div>
       
       <div class="event-footer">
         <div class="organizer">
           <i class="fas fa-user-tie"></i>
           Organisé par
-          <strong>{{ organizer_name }}</strong>
+          <strong>{{ organizer_name | default('Organisateur') }}</strong>
         </div>
         <div class="price-container">
-          <div class="ticket-price">{{ ticket_price }}</div>
+          <div class="ticket-price">{{ ticket_price | default('GRATUIT') }}</div>
         </div>
       </div>
     </div>
@@ -385,12 +358,12 @@
     <div class="ticket-right">
       <div class="ticket-type">
         <i class="fas fa-ticket-alt"></i>
-        {{ ticket_type }}
+        {{ ticket_type | default('STANDARD') }}
       </div>
       
       <div class="qr-container">
         {% if qr_code %}
-          <img src="{{ qr_code }}" alt="QR Code">
+          <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
         {% else %}
           <div class="qr-placeholder">
             <i class="fas fa-qrcode"></i>
@@ -399,8 +372,8 @@
       </div>
       
       <div class="ticket-info">
-        <div class="ticket-number">Billet {{ current_ticket }}/{{ total_tickets }}</div>
-        <div class="ticket-reference">{{ reference }}</div>
+        <div class="ticket-number">Billet {{ current_ticket | default(1) }}/{{ total_tickets | default(1) }}</div>
+        <div class="ticket-reference">{{ reference | default('REF-000') }}</div>
       </div>
     </div>
   </div>
