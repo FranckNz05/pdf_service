@@ -25,7 +25,7 @@ CORS(app)
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
-# Template CSS amélioré pour le billet
+# Template CSS compatible avec WeasyPrint
 TICKET_CSS = """
 @page {
     size: 210mm 85mm;
@@ -56,7 +56,6 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -81,7 +80,6 @@ body {
     object-fit: cover;
     opacity: 0.15;
     z-index: 1;
-    filter: blur(1px);
 }
 
 .content-overlay {
@@ -104,12 +102,7 @@ body {
     color: #ffffff;
     margin-bottom: 12px;
     line-height: 1.1;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     letter-spacing: -0.5px;
 }
 
@@ -127,13 +120,7 @@ body {
     background: rgba(255, 255, 255, 0.15);
     padding: 8px 12px;
     border-radius: 10px;
-    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.info-row:hover {
-    background: rgba(255, 255, 255, 0.2);
 }
 
 .info-icon {
@@ -166,7 +153,6 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -191,20 +177,6 @@ body {
     border-left: 2px dashed rgba(102, 126, 234, 0.3);
 }
 
-.ticket-right::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 0 4px #667eea;
-    z-index: 5;
-}
-
 .qr-section {
     text-align: center;
     flex-grow: 1;
@@ -222,7 +194,6 @@ body {
     margin-bottom: 12px;
     background: white;
     padding: 6px;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
 }
 
 .qr-label {
@@ -258,7 +229,6 @@ body {
     font-size: 18px;
     color: #2d3748;
     font-weight: 900;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 4px;
 }
 
@@ -267,22 +237,6 @@ body {
     color: #667eea;
     opacity: 0.8;
     font-weight: 500;
-}
-
-.perforated-edge {
-    position: absolute;
-    left: 65%;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 6px,
-        rgba(102, 126, 234, 0.3) 6px,
-        rgba(102, 126, 234, 0.3) 8px
-    );
-    z-index: 10;
 }
 
 .watermark {
@@ -306,7 +260,6 @@ body {
         rgba(118, 75, 162, 0.1) 50%,
         rgba(255, 107, 107, 0.05) 100%);
     z-index: 1;
-    pointer-events: none;
 }
 
 @media print {
@@ -316,25 +269,9 @@ body {
         page-break-inside: avoid;
     }
 }
-
-/* Animations subtiles */
-.ticket-container {
-    animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 """
 
-# Template HTML amélioré pour le billet
+# Template HTML pour le billet
 TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -383,8 +320,6 @@ TICKET_HTML_TEMPLATE = """
             </div>
         </div>
         
-        <div class="perforated-edge"></div>
-        
         <div class="ticket-right">
             <div class="qr-section">
                 <img src="{{ ticket.qr_code }}" alt="QR Code" class="qr-code">
@@ -406,7 +341,7 @@ TICKET_HTML_TEMPLATE = """
 </html>
 """
 
-# Template pour tickets multiples amélioré
+# Template pour tickets multiples
 MULTIPLE_TICKETS_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -455,8 +390,6 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                 </div>
             </div>
         </div>
-        
-        <div class="perforated-edge"></div>
         
         <div class="ticket-right">
             <div class="qr-section">
@@ -546,7 +479,7 @@ def health_check():
     """Endpoint de santé du service"""
     return jsonify({
         'status': 'healthy',
-        'service': 'Enhanced PDF Ticket Generator',
+        'service': 'PDF Ticket Generator',
         'timestamp': datetime.now().isoformat(),
         'version': '2.0.0'
     })
@@ -562,31 +495,20 @@ def generate_single_ticket():
             
         ticket_data = validate_ticket_data(data['ticket'])
         
-        # Traitement de l'image avec gestion d'erreur améliorée
+        # Traitement de l'image
         if 'event_image_url' in ticket_data and ticket_data['event_image_url']:
             processed_image = process_image_url(ticket_data['event_image_url'])
             ticket_data['event_image_url'] = processed_image
         
-        # Options de format
-        format_options = data.get('format', {})
-        pdf_options = data.get('options', {})
-        
         # Rendu HTML
         html_content = render_template_string(TICKET_HTML_TEMPLATE, ticket=ticket_data)
         
-        # Génération PDF avec options améliorées
+        # Génération PDF
         html_doc = HTML(string=html_content)
         css_doc = CSS(string=TICKET_CSS)
         
-        # Configuration WeasyPrint améliorée
         pdf_buffer = io.BytesIO()
-        html_doc.write_pdf(
-            pdf_buffer,
-            stylesheets=[css_doc],
-            presentational_hints=pdf_options.get('enable_forms', True),
-            optimize_images=True
-        )
-        
+        html_doc.write_pdf(pdf_buffer, stylesheets=[css_doc])
         pdf_buffer.seek(0)
         
         logger.info(f"Billet généré avec succès: {ticket_data.get('reference', 'N/A')}")
@@ -633,10 +555,6 @@ def generate_multiple_tickets():
             except ValueError as e:
                 return jsonify({'error': f'Erreur billet {i+1}: {str(e)}'}), 400
         
-        # Options
-        format_options = data.get('format', {})
-        pdf_options = data.get('options', {})
-        
         # Rendu HTML
         html_content = render_template_string(MULTIPLE_TICKETS_HTML_TEMPLATE, tickets=validated_tickets)
         
@@ -645,13 +563,7 @@ def generate_multiple_tickets():
         css_doc = CSS(string=TICKET_CSS)
         
         pdf_buffer = io.BytesIO()
-        html_doc.write_pdf(
-            pdf_buffer,
-            stylesheets=[css_doc],
-            presentational_hints=pdf_options.get('enable_forms', True),
-            optimize_images=True
-        )
-        
+        html_doc.write_pdf(pdf_buffer, stylesheets=[css_doc])
         pdf_buffer.seek(0)
         
         logger.info(f"Billets multiples générés: {len(validated_tickets)} billets")
@@ -692,7 +604,7 @@ def preview_ticket():
             <title>Aperçu Billet - {ticket_data.get('event_title', 'Événement')}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <body style="background: #f5f7fa; padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
             <div style="transform: scale(0.8); transform-origin: center;">
                 {html_content}
             </div>
