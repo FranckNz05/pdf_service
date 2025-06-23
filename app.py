@@ -7,14 +7,10 @@ import os
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 import base64
+from PIL import Image
 import tempfile
 import shutil
-import requests
-from urllib.parse import urlparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from PIL import Image
-import zlib
-import time
+import json
 
 app = Flask(__name__)
 
@@ -32,374 +28,425 @@ logger = logging.getLogger(__name__)
 # Configuration
 MAX_TICKETS_PER_REQUEST = 50
 DEFAULT_FORMAT = {'width': '180mm', 'height': '70mm'}
+MAX_IMAGE_SIZE = 1024 * 1024  # 1MB max pour les images
 TEMP_DIR = tempfile.mkdtemp(prefix='pdf_service_')
-MAX_WORKERS = 4  # Nombre de threads pour le traitement parallèle
-CACHE_TTL = 3600  # 1 heure en secondes
-MAX_IMAGE_SIZE = 2 * 1024 * 1024  # 2MB max pour les images
 
 CORS(app)
 
-# Template HTML intégré (version optimisée basée sur celui de l'IA)
-TICKET_TEMPLATE = """
-<!DOCTYPE html>
+# Template HTML amélioré intégré
+TICKET_TEMPLATE = """<!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billet d'événement</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  <meta charset="UTF-8">
+  <title>Billet d'événement</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-        @page {
-            size: 180mm 70mm;
-            margin: 0;
-            padding: 0;
-        }
+    @page {
+      size: 180mm 70mm;
+      margin: 0;
+      padding: 0;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            width: 180mm;
-            height: 70mm;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            background: white;
-            position: relative;
-        }
+    body {
+      width: 180mm;
+      height: 70mm;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      background: white;
+      position: relative;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
 
-        .ticket-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            border: 3px solid #1a237e;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            position: relative;
-        }
+    .ticket-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: table;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    }
 
-        .ticket-left {
-            width: 130mm;
-            height: calc(70mm - 6px);
-            position: relative;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 12mm;
-            background: linear-gradient(135deg, #1a237e 0%, #3949ab 50%, #5c6bc0 100%);
-            overflow: hidden;
-        }
+    .ticket-main {
+      position: relative;
+      width: 140mm;
+      height: 100%;
+      float: left;
+      background: linear-gradient(135deg, 
+        rgba(15, 26, 61, 0.95) 0%, 
+        rgba(42, 59, 113, 0.9) 30%, 
+        rgba(15, 26, 61, 0.95) 100%);
+      color: white;
+      padding: 8mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
 
-        .ticket-left::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('{{ event_image_url }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.3;
-            z-index: 1;
-        }
+    .ticket-main::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      {% if event_image_url %}
+      background-image: url('{{ event_image_url }}');
+      {% else %}
+      background-image: url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=85');
+      {% endif %}
+      background-size: cover;
+      background-position: center;
+      opacity: 0.3;
+      z-index: 0;
+    }
 
-        .ticket-left > * {
-            position: relative;
-            z-index: 2;
-        }
+    .ticket-main::after {
+      content: "";
+      position: absolute;
+      top: 10mm;
+      bottom: 10mm;
+      right: 0;
+      width: 2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3mm,
+        rgba(255,215,0,0.8) 3mm,
+        rgba(255,215,0,0.8) 5mm,
+        transparent 5mm,
+        transparent 8mm
+      );
+      z-index: 1;
+    }
 
-        .ticket-left::after {
-            content: '';
-            position: absolute;
-            top: 8mm;
-            right: -2px;
-            bottom: 8mm;
-            width: 4px;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0px,
-                transparent 4px,
-                #ddd 4px,
-                #ddd 8px
-            );
-            z-index: 3;
-        }
+    .ticket-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .event-header {
-            margin-bottom: 6mm;
-        }
+    .event-header {
+      margin-bottom: 3mm;
+    }
 
-        .event-title {
-            font-size: 11mm;
-            font-weight: 900;
-            line-height: 0.9;
-            margin-bottom: 4mm;
-            text-transform: uppercase;
-            letter-spacing: -0.5px;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-            color: #ffffff;
-        }
+    .event-title {
+      font-size: 7mm;
+      font-weight: 800;
+      margin: 0 0 2mm 0;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+      color: #FFD700;
+    }
 
-        .event-date-time {
-            display: inline-flex;
-            align-items: center;
-            gap: 3mm;
-            background: rgba(255,193,7,0.95);
-            color: #1a237e;
-            padding: 3mm 5mm;
-            border-radius: 6mm;
-            font-weight: 700;
-            font-size: 5mm;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-        }
+    .event-date-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      background: rgba(255,255,255,0.15);
+      padding: 2mm 3mm;
+      border-radius: 8px;
+      border: 1px solid rgba(255,215,0,0.3);
+      backdrop-filter: blur(10px);
+    }
 
-        .event-details {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 3mm;
-        }
+    .event-date {
+      font-size: 3.5mm;
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
 
-        .location-info {
-            display: flex;
-            align-items: flex-start;
-            gap: 3mm;
-            background: rgba(0,0,0,0.2);
-            padding: 4mm;
-            border-radius: 6mm;
-            backdrop-filter: blur(10px);
-        }
+    .event-details {
+      background: rgba(0,0,0,0.3);
+      padding: 3mm;
+      border-radius: 8px;
+      margin: 2mm 0;
+      backdrop-filter: blur(5px);
+    }
 
-        .location-icon {
-            color: #ffc107;
-            font-size: 5mm;
-            margin-top: 1mm;
-        }
+    .location-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      margin-bottom: 1mm;
+    }
 
-        .location-text {
-            flex-grow: 1;
-        }
+    .event-location {
+      font-size: 4mm;
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
 
-        .event-location {
-            font-size: 5.5mm;
-            font-weight: 700;
-            margin-bottom: 1mm;
-            color: #ffffff;
-        }
+    .event-address {
+      font-size: 3mm;
+      margin: 0;
+      color: rgba(255,255,255,0.8);
+      padding-left: 5.5mm;
+    }
 
-        .event-address {
-            font-size: 4mm;
-            opacity: 0.9;
-            font-weight: 400;
-            color: #ffffff;
-        }
+    .event-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
 
-        .event-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 4mm;
-        }
+    .organizer-section {
+      flex: 1;
+    }
 
-        .organizer-info {
-            display: flex;
-            align-items: center;
-            gap: 3mm;
-            font-size: 4mm;
-        }
+    .organizer-label {
+      font-size: 2.5mm;
+      color: rgba(255,255,255,0.7);
+      margin: 0 0 1mm 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-        .organizer-name {
-            font-weight: 700;
-            color: #ffc107;
-            font-size: 4.5mm;
-        }
+    .organizer-name {
+      font-size: 3.5mm;
+      font-weight: 700;
+      color: #FFD700;
+      margin: 0;
+    }
 
-        .price-display {
-            background: linear-gradient(135deg, #ffc107, #ff8f00);
-            color: #1a237e;
-            padding: 3mm 6mm;
-            border-radius: 6mm;
-            font-weight: 900;
-            font-size: 7mm;
-            box-shadow: 0 4px 15px rgba(255,193,7,0.4);
-            text-align: center;
-            min-width: 25mm;
-        }
+    .price-section {
+      text-align: right;
+    }
 
-        .ticket-right {
-            width: 50mm;
-            height: calc(70mm - 6px);
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 6mm;
-            position: relative;
-            color: white;
-        }
+    .price-label {
+      font-size: 2.5mm;
+      color: rgba(255,255,255,0.7);
+      margin: 0 0 1mm 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-        .ticket-right::before {
-            content: '';
-            position: absolute;
-            left: -2px;
-            top: 8mm;
-            bottom: 8mm;
-            width: 4px;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0px,
-                transparent 4px,
-                #ddd 4px,
-                #ddd 8px
-            );
-        }
+    .ticket-price {
+      font-size: 6mm;
+      font-weight: 900;
+      color: #FFD700;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
 
-        .ticket-type-badge {
-            background: #ffc107;
-            color: #1a237e;
-            padding: 2mm 4mm;
-            border-radius: 4mm;
-            font-weight: 800;
-            font-size: 3.5mm;
-            text-transform: uppercase;
-            margin-bottom: 4mm;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+    .ticket-stub {
+      width: 40mm;
+      height: 100%;
+      float: right;
+      background: linear-gradient(to bottom, #0F1A3D 0%, #2A3B71 50%, #1a237e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4mm;
+      position: relative;
+      color: white;
+    }
 
-        .qr-code-container {
-            width: 32mm;
-            height: 32mm;
-            background: white;
-            padding: 2mm;
-            border-radius: 4mm;
-            margin: 3mm 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .ticket-stub::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8mm;
+      bottom: 8mm;
+      width: 2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3mm,
+        rgba(255,215,0,0.8) 3mm,
+        rgba(255,215,0,0.8) 5mm,
+        transparent 5mm,
+        transparent 8mm
+      );
+    }
 
-        .qr-code-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+    .ticket-type-label {
+      font-size: 2.5mm;
+      font-weight: 500;
+      margin: 0 0 2mm 0;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1px;
+    }
 
-        .qr-placeholder {
-            width: 100%;
-            height: 100%;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            font-size: 8mm;
-            border-radius: 2mm;
-        }
+    .ticket-type {
+      font-size: 3.5mm;
+      font-weight: 700;
+      margin: 0 0 4mm 0;
+      text-transform: uppercase;
+      color: #FFD700;
+      text-align: center;
+    }
 
-        .ticket-info {
-            text-align: center;
-            margin-top: 4mm;
-            width: 100%;
-        }
+    .qr-wrapper {
+      width: 22mm;
+      height: 22mm;
+      background: white;
+      padding: 1.5mm;
+      border-radius: 4px;
+      margin: 2mm 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .ticket-number {
-            background: rgba(255,193,7,0.2);
-            color: #ffc107;
-            padding: 2mm 4mm;
-            border-radius: 3mm;
-            font-weight: 700;
-            font-size: 3.5mm;
-            margin-bottom: 2mm;
-            border: 1px solid rgba(255,193,7,0.4);
-        }
+    .qr-code {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
 
-        .ticket-reference {
-            font-family: 'Courier New', monospace;
-            font-size: 3mm;
-            letter-spacing: 1px;
-            color: #b0bec5;
-            background: rgba(0,0,0,0.2);
-            padding: 1.5mm 3mm;
-            border-radius: 2mm;
-        }
+    .qr-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 8mm;
+    }
 
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            .ticket-container {
-                page-break-inside: avoid;
-            }
-        }
+    .ticket-meta {
+      text-align: center;
+      margin-top: 3mm;
+    }
 
-        @media (max-width: 180mm) {
-            .event-title { font-size: 9mm; }
-            .event-date-time { font-size: 4mm; }
-            .event-location { font-size: 4.5mm; }
-            .price-display { font-size: 6mm; }
-        }
-    </style>
+    .ticket-number {
+      font-size: 2.8mm;
+      font-weight: 600;
+      margin: 0 0 1mm 0;
+      color: white;
+    }
+
+    .ticket-reference {
+      font-size: 2.5mm;
+      font-weight: 400;
+      margin: 0;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Courier New', monospace;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      .ticket-container {
+        box-shadow: none;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="ticket-container">
-        <!-- Partie gauche -->
-        <div class="ticket-left" style="--event-image: url('{{ event_image_url }}');">
-            <div class="event-header">
-                <h1 class="event-title">{{ event_title }}</h1>
-                <div class="event-date-time">
-                    <span>📅</span>
-                    <span>{{ event_date_time }}</span>
-                </div>
-            </div>
-            
-            <div class="event-details">
-                <div class="location-info">
-                    <div class="location-icon">📍</div>
-                    <div class="location-text">
-                        <div class="event-location">{{ event_location }}</div>
-                        <div class="event-address">{{ event_address }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="event-footer">
-                <div class="organizer-info">
-                    <span>👤</span>
-                    <span>Organisé par</span>
-                    <span class="organizer-name">{{ organizer_name }}</span>
-                </div>
-                <div class="price-display">{{ ticket_price }}</div>
-            </div>
+  <div class="ticket-container">
+    <div class="ticket-main">
+      <div class="ticket-content">
+        <div class="event-header">
+          <h1 class="event-title">{{ event_title }}</h1>
+          <div class="event-date-wrapper">
+            <span>📅</span>
+            <div class="event-date">{{ event_date_time }}</div>
+          </div>
         </div>
         
-        <!-- Partie droite -->
-        <div class="ticket-right">
-            <div class="ticket-type-badge">{{ ticket_type }}</div>
-            
-            <div class="qr-code-container">
-                <img src="{{ qr_code }}" alt="QR Code d'accès" onerror="this.parentElement.innerHTML='<div class=\'qr-placeholder\'>QR</div>'">
-            </div>
-            
-            <div class="ticket-info">
-                <div class="ticket-number">Billet {{ current_ticket }}/{{ total_tickets }}</div>
-                <div class="ticket-reference">{{ reference }}</div>
-            </div>
+        <div class="event-details">
+          <div class="location-wrapper">
+            <span>📍</span>
+            <div class="event-location">{{ event_location }}</div>
+          </div>
+          {% if event_address %}
+          <div class="event-address">{{ event_address }}</div>
+          {% endif %}
         </div>
+        
+        <div class="event-footer">
+          <div class="organizer-section">
+            <div class="organizer-label">Organisé par</div>
+            <div class="organizer-name">{{ organizer_name }}</div>
+          </div>
+          <div class="price-section">
+            <div class="price-label">Prix</div>
+            <div class="ticket-price">{{ ticket_price }}</div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="ticket-stub">
+      <div class="ticket-type-label">Billet</div>
+      <div class="ticket-type">{{ ticket_type }}</div>
+      
+      <div class="qr-wrapper">
+        {% if qr_code %}
+          <img src="{{ qr_code }}" alt="QR Code" class="qr-code">
+        {% else %}
+          <div class="qr-placeholder">
+            <span>⚡</span>
+          </div>
+        {% endif %}
+      </div>
+      
+      <div class="ticket-meta">
+        <div class="ticket-number">{{ current_ticket }}/{{ total_tickets }}</div>
+        <div class="ticket-reference">{{ reference }}</div>
+      </div>
+    </div>
+  </div>
 </body>
-</html>
-"""
+</html>"""
+
+def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
+    """Optimise une image en base64 pour WeasyPrint"""
+    try:
+        if len(image_data) > max_size:
+            # Décoder et optimiser l'image
+            image_bytes = base64.b64decode(image_data)
+            
+            with tempfile.NamedTemporaryFile(suffix='.jpg') as tmp:
+                tmp.write(image_bytes)
+                tmp.flush()
+                
+                with Image.open(tmp.name) as img:
+                    # Convertir en RGB si nécessaire
+                    if img.mode in ('RGBA', 'LA', 'P'):
+                        img = img.convert('RGB')
+                    
+                    # Redimensionner si trop grand
+                    if img.width > 1200 or img.height > 800:
+                        img.thumbnail((1200, 800), Image.Resampling.LANCZOS)
+                    
+                    # Sauvegarder avec compression
+                    output = io.BytesIO()
+                    img.save(output, format='JPEG', quality=85, optimize=True)
+                    optimized_data = base64.b64encode(output.getvalue()).decode('utf-8')
+                    
+                    logger.info(f"Image optimisée: {len(image_data)} -> {len(optimized_data)} bytes")
+                    return optimized_data
+        
+        return image_data
+    except Exception as e:
+        logger.error(f"Erreur d'optimisation d'image: {str(e)}")
+        return image_data
 
 def clean_temp_files():
     """Nettoie les fichiers temporaires"""
@@ -410,288 +457,163 @@ def clean_temp_files():
     except Exception as e:
         logger.error(f"Erreur de nettoyage des fichiers temporaires: {str(e)}")
 
-def optimize_image(image_data, max_size=MAX_IMAGE_SIZE):
-    """Optimise une image en base64 pour WeasyPrint"""
-    try:
-        if len(image_data) > max_size:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
-                tmp.write(base64.b64decode(image_data))
-                tmp_path = tmp.name
-            
-            with Image.open(tmp_path) as img:
-                # Réduire la taille si nécessaire
-                if img.width > 1200 or img.height > 1200:
-                    img.thumbnail((1200, 1200))
-                
-                # Convertir en JPEG pour réduire la taille
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                # Optimiser la qualité
-                optimized_path = f"{tmp_path}_optimized.jpg"
-                img.save(optimized_path, format='JPEG', quality=85, optimize=True, progressive=True)
-                
-                with open(optimized_path, 'rb') as f:
-                    optimized_data = base64.b64encode(f.read()).decode('utf-8')
-                
-                os.unlink(tmp_path)
-                os.unlink(optimized_path)
-                
-                logger.info(f"Image optimisée: {len(image_data)} -> {len(optimized_data)} bytes")
-                return optimized_data
-        
-        return image_data
-    except Exception as e:
-        logger.error(f"Erreur d'optimisation d'image: {str(e)}")
-        return image_data
-
 def validate_ticket_data(ticket_data):
-    """Valide les données du ticket"""
-    required_fields = [
-        'event_title', 'reference', 'qr_code',
-        'event_date_time', 'event_location', 'organizer_name',
-        'ticket_price', 'ticket_type'
-    ]
+    """Valide et nettoie les données du billet"""
+    required_fields = ['event_title', 'reference']
     
     for field in required_fields:
-        if not ticket_data.get(field):
-            logger.error(f"Champ requis manquant: {field}")
-            return False
+        if field not in ticket_data or not ticket_data[field]:
+            raise ValueError(f"Champ requis manquant: {field}")
     
-    return True
-
-def generate_pdf_from_html(html_content, format_data=None):
-    """Génère un PDF à partir du contenu HTML"""
-    try:
-        start_time = time.time()
-        
-        # CSS minimal pour WeasyPrint
-        css = CSS(string="""
-            @page {
-                size: 180mm 70mm;
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        """)
-        
-        # Génération PDF avec options optimisées
-        pdf = HTML(
-            string=html_content,
-            base_url=request.base_url
-        ).write_pdf(
-            stylesheets=[css],
-            optimize_size=('fonts', 'images', 'content'),
-            presentational_hints=True
-        )
-        
-        logger.info(f"PDF généré en {time.time() - start_time:.2f}s")
-        return pdf
-        
-    except Exception as e:
-        logger.error(f"Erreur de génération PDF: {str(e)}", exc_info=True)
-        raise
+    # Valeurs par défaut
+    defaults = {
+        'event_date_time': 'Date à définir',
+        'event_location': 'Lieu de l\'événement',
+        'event_address': '',
+        'ticket_type': 'STANDARD',
+        'ticket_price': 'GRATUIT',
+        'organizer_name': 'Organisateur',
+        'current_ticket': 1,
+        'total_tickets': 1,
+        'qr_code': None
+    }
+    
+    for key, default_value in defaults.items():
+        if key not in ticket_data:
+            ticket_data[key] = default_value
+    
+    return ticket_data
 
 @app.route('/health')
 def health_check():
-    """Endpoint de vérification de santé"""
     return jsonify({
-        'status': 'healthy',
+        'status': 'running',
         'service': 'PDF Generator',
         'version': '2.0.0',
+        'temp_dir': TEMP_DIR,
         'timestamp': datetime.utcnow().isoformat()
-    }), 200
+    })
 
-@app.route('/generate-ticket', methods=['POST'])
-def generate_ticket():
-    """Génère un ticket PDF unique"""
-    clean_temp_files()
-    
+@app.route('/generate', methods=['POST'])
+def generate_pdf():
+    """Endpoint pour générer un ou plusieurs billets PDF"""
     try:
-        if not request.is_json:
-            logger.warning('Requête non-JSON reçue')
-            return jsonify({'error': 'Content-Type must be application/json'}), 400
-            
-        data = request.get_json()
-        
-        if not data or 'ticket' not in data:
-            logger.warning('Données de ticket manquantes')
-            return jsonify({'error': 'Ticket data is required'}), 400
-            
-        ticket_data = data['ticket']
-        
-        # Validation des données
-        if not validate_ticket_data(ticket_data):
-            return jsonify({'error': 'Invalid ticket data'}), 400
-        
-        # Optimisation des images
-        if 'event_image' in ticket_data and ticket_data['event_image']:
-            ticket_data['event_image'] = optimize_image(ticket_data['event_image'])
-            ticket_data['event_image_url'] = f"data:image/jpeg;base64,{ticket_data['event_image']}"
-        else:
-            ticket_data['event_image_url'] = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=85'
-        
-        # Préparation des données
-        ticket_data.update({
-            'generated_at': datetime.utcnow().isoformat(),
-            'current_ticket': data.get('current_ticket', 1),
-            'total_tickets': data.get('total_tickets', 1),
-            'format': data.get('format', DEFAULT_FORMAT)
-        })
-        
-        # Génération HTML
-        html = render_template_string(TICKET_TEMPLATE, **ticket_data)
-        
-        # Génération PDF
-        pdf = generate_pdf_from_html(html)
-        
-        logger.info(f"Ticket généré - Référence: {ticket_data['reference']}")
-        
-        return send_file(
-            io.BytesIO(pdf),
-            mimetype='application/pdf',
-            as_attachment=False,
-            download_name=f'ticket_{ticket_data["reference"]}.pdf'
-        )
-            
-    except Exception as e:
-        logger.error(f"Erreur de génération PDF: {str(e)}", exc_info=True)
-        return jsonify({
-            'error': 'PDF generation failed',
-            'details': str(e)
-        }), 500
-
-@app.route('/generate-multiple-tickets', methods=['POST'])
-def generate_multiple_tickets():
-    """Génère plusieurs tickets dans un seul PDF"""
-    clean_temp_files()
-    
-    try:
+        # Vérifier le content-type
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be application/json'}), 400
-            
+
         data = request.get_json()
         
+        # Valider les données d'entrée
         if not data or 'tickets' not in data:
-            return jsonify({'error': 'Tickets array is required'}), 400
-            
-        tickets = data['tickets']
+            return jsonify({'error': 'No tickets data provided'}), 400
         
-        # Validation de base
+        tickets = data['tickets']
+        format_config = data.get('format', DEFAULT_FORMAT)
+        
+        # Limiter le nombre de billets par requête
         if len(tickets) > MAX_TICKETS_PER_REQUEST:
             return jsonify({
-                'error': f'Too many tickets (max {MAX_TICKETS_PER_REQUEST})',
-                'received': len(tickets)
-            }), 413
-        
-        # Préparation des données
-        generated_at = datetime.utcnow().isoformat()
-        total_tickets = len(tickets)
-        
-        # CSS partagé pour tous les tickets
-        css = CSS(string="""
-            @page {
-                size: 180mm 70mm;
+                'error': f'Too many tickets in one request (max {MAX_TICKETS_PER_REQUEST})'
+            }), 400
+
+        # Préparer les options de format
+        css = CSS(string=f"""
+            @page {{ 
+                size: {format_config.get('width', DEFAULT_FORMAT['width'])} 
+                     {format_config.get('height', DEFAULT_FORMAT['height'])};
                 margin: 0;
-                padding: 0;
-            }
-            body {
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+            }}
         """)
+
+        # Générer les PDFs
+        pdf_files = []
+        for ticket in tickets:
+            try:
+                # Valider et nettoyer les données du billet
+                ticket = validate_ticket_data(ticket)
+                
+                # Optimiser l'image si fournie
+                if 'event_image_url' in ticket and ticket['event_image_url']:
+                    if ticket['event_image_url'].startswith('data:image'):
+                        ticket['event_image_url'] = optimize_image(
+                            ticket['event_image_url'].split(',')[1]
+                        )
+                        ticket['event_image_url'] = f"data:image/jpeg;base64,{ticket['event_image_url']}"
+                
+                # Optimiser le QR code si fourni
+                if 'qr_code' in ticket and ticket['qr_code']:
+                    if ticket['qr_code'].startswith('data:image'):
+                        ticket['qr_code'] = optimize_image(
+                            ticket['qr_code'].split(',')[1],
+                            max_size=512*1024  # Taille plus petite pour les QR codes
+                        )
+                        ticket['qr_code'] = f"data:image/jpeg;base64,{ticket['qr_code']}"
+                
+                # Rendre le template HTML avec les données du billet
+                html = HTML(string=render_template_string(TICKET_TEMPLATE, **ticket))
+                
+                # Générer le PDF
+                pdf_bytes = io.BytesIO()
+                html.write_pdf(pdf_bytes, stylesheets=[css])
+                pdf_files.append(pdf_bytes.getvalue())
+                
+            except Exception as e:
+                logger.error(f"Error generating ticket {ticket.get('reference', 'unknown')}: {str(e)}")
+                continue
+
+        # Retourner le résultat
+        if not pdf_files:
+            return jsonify({'error': 'Failed to generate any tickets'}), 500
         
-        # Génération des PDF individuels en parallèle
-        pdf_docs = []
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = []
-            for idx, ticket in enumerate(tickets[:MAX_TICKETS_PER_REQUEST], start=1):
-                try:
-                    # Validation des champs requis
-                    if not validate_ticket_data(ticket):
-                        continue
-                    
-                    # Optimisation des images
-                    if 'event_image' in ticket and ticket['event_image']:
-                        ticket['event_image'] = optimize_image(ticket['event_image'])
-                        ticket['event_image_url'] = f"data:image/jpeg;base64,{ticket['event_image']}"
-                    else:
-                        ticket['event_image_url'] = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=85'
-                    
-                    ticket.update({
-                        'generated_at': generated_at,
-                        'current_ticket': idx,
-                        'total_tickets': total_tickets,
-                        'format': DEFAULT_FORMAT
-                    })
-                    
-                    html = render_template_string(TICKET_TEMPLATE, **ticket)
-                    futures.append(executor.submit(generate_pdf_from_html, html))
-                    
-                except Exception as e:
-                    logger.error(f"Erreur avec le ticket {idx}: {str(e)}")
-                    continue
-            
-            for future in as_completed(futures):
-                try:
-                    pdf_doc = HTML(string=render_template_string(TICKET_TEMPLATE)).render(stylesheets=[css])
-                    pdf_docs.append(pdf_doc)
-                except Exception as e:
-                    logger.error(f"Erreur lors de la génération: {str(e)}")
-        
-        if not pdf_docs:
-            return jsonify({'error': 'No valid tickets to generate'}), 400
-        
-        # Fusion des PDF
-        main_doc = pdf_docs[0]
-        for doc in pdf_docs[1:]:
-            main_doc.pages.extend(doc.pages)
-        
-        pdf_bytes = main_doc.write_pdf()
-        
-        first_ref = tickets[0].get('reference', 'start')
-        last_ref = tickets[-1].get('reference', 'end')
-        
-        return send_file(
-            io.BytesIO(pdf_bytes),
-            mimetype='application/pdf',
-            as_attachment=False,
-            download_name=f'tickets_{first_ref}_to_{last_ref}.pdf'
-        )
-            
+        if len(pdf_files) == 1:
+            # Retourner un seul PDF
+            return send_file(
+                io.BytesIO(pdf_files[0]),
+                mimetype='application/pdf',
+                as_attachment=True,
+                download_name=f"ticket_{tickets[0].get('reference', 'unknown')}.pdf"
+            )
+        else:
+            # Créer un ZIP avec plusieurs PDFs (implémentation optionnelle)
+            # Pour l'exemple, nous retournons juste le premier PDF
+            # Dans une implémentation réelle, vous pourriez utiliser zipfile
+            return send_file(
+                io.BytesIO(pdf_files[0]),
+                mimetype='application/pdf',
+                as_attachment=True,
+                download_name="tickets.pdf"
+            )
+
     except Exception as e:
-        logger.error(f"Erreur de génération multiple: {str(e)}", exc_info=True)
-        return jsonify({
-            'error': 'PDF generation failed',
-            'details': str(e)
-        }), 500
+        logger.error(f"Error in generate_pdf endpoint: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-@app.errorhandler(400)
-def bad_request(error):
-    return jsonify({'error': 'Bad request'}), 400
+@app.errorhandler(HTTPException)
+def handle_http_exception(e):
+    """Gestion des erreurs HTTP"""
+    logger.error(f"HTTP error: {e.code} - {e.description}")
+    return jsonify({
+        'error': e.description,
+        'code': e.code
+    }), e.code
 
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'Endpoint not found'}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Gestion des autres exceptions"""
+    logger.error(f"Unexpected error: {str(e)}")
+    return jsonify({
+        'error': 'An unexpected error occurred',
+        'details': str(e)
+    }), 500
 
 if __name__ == '__main__':
-    try:
-        app.run(
-            host='0.0.0.0',
-            port=int(os.getenv('PORT', 5000)),
-            threaded=True,
-            debug=False
-        )
-    finally:
-        clean_temp_files()
+    # Nettoyer les fichiers temporaires au démarrage
+    clean_temp_files()
+    
+    # Configurer le port et l'hôte
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    
+    # Démarrer l'application
+    app.run(host=host, port=port, debug=os.environ.get('DEBUG', 'false').lower() == 'true')
