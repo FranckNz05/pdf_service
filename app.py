@@ -23,259 +23,259 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 TICKET_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
 
-    body {
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'Poppins', sans-serif;
-      padding: 10px;
-    }
+body {
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    padding: 10px;
+}
 
-    .ticket-container {
-      width: 900px;
-      height: 70mm;
-      position: relative;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
-    }
+.ticket-container {
+    width: 900px;
+    height: 70mm;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
 
-    .ticket {
-      display: flex;
-      height: 100%;
-      background: white;
-      position: relative;
-    }
+.ticket {
+    display: flex;
+    height: 100%;
+    background: white;
+    position: relative;
+}
 
-    .ticket::after {
-      content: '';
-      position: absolute;
-      left: 75%;
-      height: 100%;
-      width: 1px;
-      background: repeating-linear-gradient(to bottom,
+.ticket::after {
+    content: '';
+    position: absolute;
+    left: 75%;
+    height: 100%;
+    width: 1px;
+    background: repeating-linear-gradient(to bottom,
         transparent,
         transparent 10px,
         rgba(255,255,255,0.5) 10px,
         rgba(255,255,255,0.5) 20px);
-      z-index: 2;
-    }
+    z-index: 2;
+}
 
-    .ticket-left {
-      width: 45%;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+.ticket-left {
+    width: 45%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
-    .event-image-container {
-      flex-grow: 1;
-      overflow: hidden;
-      position: relative;
-      margin-left: -15%;
-      width: 115%;
-    }
+.event-image-container {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+    margin-left: -15%;
+    width: 115%;
+}
 
-    .event-image-container::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 30%;
-      background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 1));
-    }
+.event-image-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 1));
+}
 
-    .event-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+.event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .price-tag {
-      background: #ffd700;
-      color: #0f1a3d;
-      padding: 8px 25px;
-      border-radius: 0 50px 50px 0;
-      font-size: 18px;
-      font-weight: 700;
-      margin-left: -20px;
-      margin-top: 20px;
-      width: fit-content;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-      position: absolute;
-      top: 0;
-      z-index: 2;
-    }
+.price-tag {
+    background: #ffd700;
+    color: #0f1a3d;
+    padding: 8px 25px;
+    border-radius: 0 50px 50px 0;
+    font-size: 18px;
+    font-weight: 700;
+    margin-left: -20px;
+    margin-top: 20px;
+    width: fit-content;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 0;
+    z-index: 2;
+}
 
-    .ticket-center {
-      width: 60%;
-      padding: 20px 15px;
-      display: flex;
-      flex-direction: column;
-      background: #f8f9fa;
-      position: relative;
-      align-items: center;
-    }
+.ticket-center {
+    width: 60%;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    position: relative;
+    align-items: center;
+}
 
-    .ticket-right {
-      width: 20%;
-      background: #0f1a3d;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      position: relative;
-      padding: 20px;
-    }
+.ticket-right {
+    width: 20%;
+    background: #0f1a3d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    padding: 20px;
+}
 
-    .ticket-type {
-      background: #ffd700;
-      color: #0f1a3d;
-      padding: 8px 15px;
-      border-radius: 0 0 10px 10px;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 9px;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      width: 70%;
-      text-align: center;
-      position: absolute;
-      top: 0px;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    }
+.ticket-type {
+    background: #ffd700;
+    color: #0f1a3d;
+    padding: 8px 15px;
+    border-radius: 0 0 10px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 9px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    width: 70%;
+    text-align: center;
+    position: absolute;
+    top: 0px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
 
-    .event-title-container {
-      width: 100%;
-      z-index: 2;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+.event-title-container {
+    width: 100%;
+    z-index: 2;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
-    .event-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: #0f1a3d;
-      line-height: 1.2;
-      text-transform: uppercase;
-      text-shadow: 1px 2px 3px rgba(187, 184, 184, 0.5);
-      margin: 0;
-      white-space: normal;
-      word-wrap: break-word;
-      padding: 0 10px;
-    }
+.event-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f1a3d;
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-shadow: 1px 2px 3px rgba(187, 184, 184, 0.5);
+    margin: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0 10px;
+}
 
-    .ticket-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      width: 100%;
-      padding: 0 10px;
-    }
+.ticket-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+    padding: 0 10px;
+}
 
-    .info-group {
-      display: flex;
-      flex-direction: column;
-    }
+.info-group {
+    display: flex;
+    flex-direction: column;
+}
 
-    .info-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-    }
+.info-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
 
-    .info-icon {
-      width: 20px;
-      height: 20px;
-      background: #0f1a3d;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 8px;
-      font-size: 10px;
-    }
+.info-icon {
+    width: 20px;
+    height: 20px;
+    background: #0f1a3d;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-size: 10px;
+}
 
-    .info-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #495057;
-      letter-spacing: 0.5px;
-    }
+.info-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #495057;
+    letter-spacing: 0.5px;
+}
 
-    .info-value {
-      font-size: 13px;
-      color: #212529;
-      font-weight: 500;
-      padding-left: 28px;
-    }
+.info-value {
+    font-size: 13px;
+    color: #212529;
+    font-weight: 500;
+    padding-left: 28px;
+}
 
-    .info-organisateur {
-        text-align: center;
-        padding-top: 30px;
-    }
+.info-organisateur {
+    text-align: center;
+    padding-top: 30px;
+}
 
-    .ticket-qr {
-      width: 80px;
-      height: 80px;
-      background: white;
-      padding: 5px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      margin-top: 25px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-    }
+.ticket-qr {
+    width: 80px;
+    height: 80px;
+    background: white;
+    padding: 5px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    margin-top: 25px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
 
-    .ticket-qr img {
-      width: 100%;
-      height: 100%;
-    }
+.ticket-qr img {
+    width: 100%;
+    height: 100%;
+}
 
-    .qr-label {
-      color: white;
-      font-size: 12px;
-      text-align: center;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
+.qr-label {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
 
-    .ticket-number {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.8);
-      text-align: center;
-      font-family: monospace;
-      margin-top: 5px;
-    }
+.ticket-number {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    font-family: monospace;
+    margin-top: 5px;
+}
 
-    .ticket-footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 8px;
-      text-align: center;
-      font-size: 10px;
-      color: #6c757d;
-      background: #f8f9fa;
-      border-top: 1px solid #dee2e6;
-      font-weight: 500;
-      z-index: 2;
-    }
+.ticket-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    font-weight: 500;
+    z-index: 2;
+}
 """
 
-# Template HTML adapté aux données Laravel
+# Template HTML corrigé pour Flask/Jinja2
 TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticket - MOKILIEVENT</title>
+  <title>Ticket - {{ ticket.event_title }}</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -283,20 +283,16 @@ TICKET_HTML_TEMPLATE = """
     <div class="ticket">
       <div class="ticket-left">
         <div class="price-tag">
-          {{ number_format($ticket->pivot->unit_price, 0, ',', ' ') }} FCFA
+          {{ ticket.ticket_price if ticket.ticket_price else 'GRATUIT' }}
         </div>
         <div class="event-image-container">
-          @if($event->image)
-            <img class="event-image" src="{{ public_path('storage/' . $event->image) }}" alt="{{ $event->title }}">
-          @else
-            <img class="event-image" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Événement">
-          @endif
+          <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
         </div>
       </div>
 
       <div class="ticket-center">
         <div class="event-title-container">
-          <h1 class="event-title">{{ strtoupper($event->title) }}</h1>
+          <h1 class="event-title">{{ ticket.event_title }}</h1>
         </div>
 
         <div class="ticket-info">
@@ -307,8 +303,7 @@ TICKET_HTML_TEMPLATE = """
               </div>
               <span class="info-label">DATE & HEURE</span>
             </div>
-            <span class="info-value">{{ $event->start_date->format('d M Y') }}</span>
-            <span class="info-value">{{ $event->start_date->format('H:i') }}-{{ $event->end_date->format('H:i') }}</span>
+            <span class="info-value">{{ ticket.event_date_time }}</span>
           </div>
 
           <div class="info-group">
@@ -318,37 +313,35 @@ TICKET_HTML_TEMPLATE = """
               </div>
               <span class="info-label">LIEU</span>
             </div>
-            <span class="info-value">{{ $event->lieu ?? 'Lieu non spécifié' }}</span>
-            <span class="info-value">{{ $event->ville }}, {{ $event->adresse }}, {{ $event->pays }}</span>
+            <span class="info-value">{{ ticket.event_location }}</span>
+            {% if ticket.event_address %}
+            <span class="info-value">{{ ticket.event_address }}</span>
+            {% endif %}
           </div>
         </div>
         <div class="info-organisateur">
-            <span class="info-value">Organisé par : <b>{{ $event->organizer->company_name ?? 'Organisateur non spécifié' }}</b></span>
+            <span class="info-value">Organisé par : <b>{{ ticket.organizer_name }}</b></span>
         </div>
       </div>
 
       <div class="ticket-right">
         <div class="ticket-type">
-          {{ strtoupper($ticket->nom) }}
+          {{ ticket.ticket_type }}
         </div>
 
         <div class="qr-label">SCANNEZ CE QR CODE</div>
 
         <div class="ticket-qr">
-          @if($payment->qr_code)
-            <img src="{{ public_path('storage/' . $payment->qr_code) }}" alt="QR Code">
-          @else
-            <img src="{{ $qrCode }}" alt="QR Code">
-          @endif
+          <img src="{{ ticket.qr_code }}" alt="QR Code">
         </div>
 
         <div class="ticket-number">
-          RÉF: {{ $payment->matricule }}{{ isset($ticketIndex) ? '-'.$ticketIndex : '' }}
+          RÉF: {{ ticket.reference }}
         </div>
       </div>
 
       <div class="ticket-footer">
-        Info Line : {{ $event->organizer->phone_primary ?? '+000 00 00 00 00' }} {{ $event->organizer->phone_secondary ? '/ ' . $event->organizer->phone_secondary : '' }} | Billet valable pour une personne • Non remboursable | MOKILIEVENT
+        Billet valable pour une personne • Non remboursable
       </div>
     </div>
   </div>
@@ -363,28 +356,25 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticket - MOKILIEVENT</title>
+  <title>Tickets - {{ tickets[0].event_title }}</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="ticket-container">
+  {% for ticket in tickets %}
+  <div class="ticket-container" style="{% if not loop.first %}page-break-before: always;{% endif %}">
     <div class="ticket">
       <div class="ticket-left">
         <div class="price-tag">
-          {{ number_format($ticket->pivot->unit_price, 0, ',', ' ') }} FCFA
+          {{ ticket.ticket_price if ticket.ticket_price else 'GRATUIT' }}
         </div>
         <div class="event-image-container">
-          @if($event->image)
-            <img class="event-image" src="{{ public_path('storage/' . $event->image) }}" alt="{{ $event->title }}">
-          @else
-            <img class="event-image" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Événement">
-          @endif
+          <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
         </div>
       </div>
 
       <div class="ticket-center">
         <div class="event-title-container">
-          <h1 class="event-title">{{ strtoupper($event->title) }}</h1>
+          <h1 class="event-title">{{ ticket.event_title }}</h1>
         </div>
 
         <div class="ticket-info">
@@ -395,8 +385,7 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
               </div>
               <span class="info-label">DATE & HEURE</span>
             </div>
-            <span class="info-value">{{ $event->start_date->format('d M Y') }}</span>
-            <span class="info-value">{{ $event->start_date->format('H:i') }}-{{ $event->end_date->format('H:i') }}</span>
+            <span class="info-value">{{ ticket.event_date_time }}</span>
           </div>
 
           <div class="info-group">
@@ -406,46 +395,48 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
               </div>
               <span class="info-label">LIEU</span>
             </div>
-            <span class="info-value">{{ $event->lieu ?? 'Lieu non spécifié' }}</span>
-            <span class="info-value">{{ $event->ville }}, {{ $event->adresse }}, {{ $event->pays }}</span>
+            <span class="info-value">{{ ticket.event_location }}</span>
+            {% if ticket.event_address %}
+            <span class="info-value">{{ ticket.event_address }}</span>
+            {% endif %}
           </div>
         </div>
         <div class="info-organisateur">
-            <span class="info-value">Organisé par : <b>{{ $event->organizer->company_name ?? 'Organisateur non spécifié' }}</b></span>
+            <span class="info-value">Organisé par : <b>{{ ticket.organizer_name }}</b></span>
         </div>
       </div>
 
       <div class="ticket-right">
         <div class="ticket-type">
-          {{ strtoupper($ticket->nom) }}
+          {{ ticket.ticket_type }}
         </div>
 
         <div class="qr-label">SCANNEZ CE QR CODE</div>
 
         <div class="ticket-qr">
-          @if($payment->qr_code)
-            <img src="{{ public_path('storage/' . $payment->qr_code) }}" alt="QR Code">
-          @else
-            <img src="{{ $qrCode }}" alt="QR Code">
-          @endif
+          <img src="{{ ticket.qr_code }}" alt="QR Code">
         </div>
 
         <div class="ticket-number">
-          RÉF: {{ $payment->matricule }}{{ isset($ticketIndex) ? '-'.$ticketIndex : '' }}
+          RÉF: {{ ticket.reference }}
+          {% if ticket.current_ticket and ticket.total_tickets %}
+          <br>({{ ticket.current_ticket }}/{{ ticket.total_tickets }})
+          {% endif %}
         </div>
       </div>
 
       <div class="ticket-footer">
-        Info Line : {{ $event->organizer->phone_primary ?? '+000 00 00 00 00' }} {{ $event->organizer->phone_secondary ? '/ ' . $event->organizer->phone_secondary : '' }} | Billet valable pour une personne • Non remboursable | MOKILIEVENT
+        Billet valable pour une personne • Non remboursable
       </div>
     </div>
   </div>
+  {% endfor %}
 </body>
 </html>
 """
 
 def validate_ticket_data(data):
-    """Valide les données du billet selon le format Laravel"""
+    """Valide les données du billet"""
     required_fields = [
         'event_title', 'event_date_time', 'event_location',
         'ticket_type', 'qr_code', 'reference'
@@ -457,7 +448,13 @@ def validate_ticket_data(data):
     
     # Champs optionnels avec valeurs par défaut
     if 'event_image_url' not in data or not data['event_image_url']:
-        data['event_image_url'] = "data:image/svg+xml;base64,..."  # Image par défaut
+        data['event_image_url'] = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxkZWZzPgogICAgICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNjY3ZWVhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDwvZGVmcz4KICAgIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgogICAgPHRleHQgeD0iMjAwIiB5PSIxNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1lcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+w4lWw4lORU1FTlQ8L3RleHQ+Cjwvc3ZnPg=="
+    
+    if 'organizer_name' not in data:
+        data['organizer_name'] = "Organisateur"
+    
+    if 'ticket_price' not in data:
+        data['ticket_price'] = None
     
     if 'generated_at' not in data:
         data['generated_at'] = datetime.now().strftime("%d/%m/%Y à %H:%M")
@@ -474,19 +471,17 @@ def process_image_url(image_url):
         if image_url.startswith('data:'):
             return image_url
             
-        # Si c'est une URL HTTP/HTTPS, essayer de la télécharger et la convertir en base64
+        # Si c'est une URL HTTP/HTTPS, essayer de la télécharger
         if image_url.startswith(('http://', 'https://')):
             try:
                 response = requests.get(image_url, timeout=10)
                 response.raise_for_status()
                 
-                # Déterminer le type MIME
                 content_type = response.headers.get('content-type', '')
                 if 'image' not in content_type:
                     logger.warning(f"URL ne semble pas être une image: {content_type}")
                     return None
                 
-                # Convertir en base64
                 image_base64 = base64.b64encode(response.content).decode('utf-8')
                 return f"data:{content_type};base64,{image_base64}"
                 
@@ -494,8 +489,8 @@ def process_image_url(image_url):
                 logger.warning(f"Impossible de télécharger l'image: {e}")
                 return None
         
-        # Sinon, considérer comme un chemin local
-        return image_url
+        # Sinon, considérer comme un chemin local (non supporté en production)
+        return None
         
     except Exception as e:
         logger.warning(f"Erreur traitement image URL: {e}")
@@ -525,7 +520,8 @@ def generate_single_ticket():
         # Traitement de l'image
         if 'event_image_url' in ticket_data and ticket_data['event_image_url']:
             processed_image = process_image_url(ticket_data['event_image_url'])
-            ticket_data['event_image_url'] = processed_image
+            if processed_image:
+                ticket_data['event_image_url'] = processed_image
         
         # Rendu HTML
         html_content = render_template_string(TICKET_HTML_TEMPLATE, ticket=ticket_data)
@@ -552,8 +548,8 @@ def generate_single_ticket():
         return jsonify({'error': str(e)}), 400
         
     except Exception as e:
-        logger.error(f"Erreur génération billet: {e}")
-        return jsonify({'error': 'Erreur interne du serveur'}), 500
+        logger.error(f"Erreur génération billet: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Erreur interne du serveur', 'details': str(e)}), 500
 
 @app.route('/generate-multiple-tickets', methods=['POST'])
 def generate_multiple_tickets():
@@ -567,7 +563,7 @@ def generate_multiple_tickets():
         if len(data['tickets']) == 0:
             return jsonify({'error': 'Au moins un billet requis'}), 400
             
-        if len(data['tickets']) > 50:  # Limite de sécurité
+        if len(data['tickets']) > 50:
             return jsonify({'error': 'Maximum 50 billets par requête'}), 400
         
         # Validation de tous les billets
@@ -577,7 +573,8 @@ def generate_multiple_tickets():
                 validated_ticket = validate_ticket_data(ticket)
                 if 'event_image_url' in validated_ticket and validated_ticket['event_image_url']:
                     processed_image = process_image_url(validated_ticket['event_image_url'])
-                    validated_ticket['event_image_url'] = processed_image
+                    if processed_image:
+                        validated_ticket['event_image_url'] = processed_image
                 validated_tickets.append(validated_ticket)
             except ValueError as e:
                 return jsonify({'error': f'Erreur billet {i+1}: {str(e)}'}), 400
@@ -603,8 +600,8 @@ def generate_multiple_tickets():
         )
         
     except Exception as e:
-        logger.error(f"Erreur génération billets multiples: {e}")
-        return jsonify({'error': 'Erreur interne du serveur'}), 500
+        logger.error(f"Erreur génération billets multiples: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Erreur interne du serveur', 'details': str(e)}), 500
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
@@ -617,14 +614,13 @@ def handle_http_exception(e):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Gestionnaire d'erreurs générales"""
-    logger.error(f"Erreur non gérée: {e}")
+    logger.error(f"Erreur non gérée: {str(e)}", exc_info=True)
     return jsonify({
         'error': 'Erreur interne du serveur',
         'message': str(e) if app.debug else 'Une erreur est survenue'
     }), 500
 
 if __name__ == '__main__':
-    # Configuration pour le développement
     app.run(
         host='0.0.0.0',
         port=int(os.environ.get('PORT', 5000)),
