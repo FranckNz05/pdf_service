@@ -19,10 +19,9 @@ CORS(app)
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
-# CSS pour le nouveau design de billet
+# CSS pour le design de billet
 TICKET_CSS = """
 @import url("https://fonts.googleapis.com/css2?family=Staatliches&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
 
 @page {
@@ -117,41 +116,10 @@ body, html {
     width: 100%;
 }
 
-.date span {
-    width: 100px;
-}
-
-.date span:first-child {
-    text-align: left;
-}
-
-.date span:last-child {
-    text-align: right;
-}
-
-.date .event-date {
-    color: #d83565;
-    font-size: 20px;
-}
-
 .show-name {
     font-size: 32px;
-    font-family: "Nanum Pen Script", cursive;
-    color: #d83565;
-}
-
-.show-name h1 {
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
     color: #4a437e;
     margin-bottom: 10px;
-}
-
-.show-name h2 {
-    font-size: 24px;
-    color: #d83565;
-    margin-bottom: 20px;
 }
 
 .time {
@@ -206,7 +174,7 @@ body, html {
     align-items: center;
 }
 
-.right .show-name h1 {
+.right .show-name {
     font-size: 24px;
     margin-bottom: 10px;
 }
@@ -247,7 +215,7 @@ body, html {
 }
 """
 
-# Template HTML pour le nouveau design
+# Template HTML adapté aux données Laravel
 TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -258,7 +226,7 @@ TICKET_HTML_TEMPLATE = """
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 </head>
 <body>
-    <div class="ticket created-by-anniedotexe">
+    <div class="ticket">
         <div class="left">
             <div class="image" style="background-image: url('{{ ticket.event_image_url }}')">
                 <p class="admit-one">
@@ -271,23 +239,18 @@ TICKET_HTML_TEMPLATE = """
                 </div>
             </div>
             <div class="ticket-info">
-                <p class="date">
-                    <span>{{ ticket.event_day }}</span>
-                    <span class="event-date">{{ ticket.event_date }}</span>
-                    <span>{{ ticket.event_year }}</span>
-                </p>
                 <div class="show-name">
                     <h1>{{ ticket.event_title }}</h1>
-                    <h2>{{ ticket.artist_name }}</h2>
                 </div>
                 <div class="time">
-                    <p>{{ ticket.event_time }} <span>TO</span> {{ ticket.event_end_time }}</p>
-                    <p>DOORS <span>@</span> {{ ticket.doors_open_time }}</p>
+                    <p>{{ ticket.event_date_time }}</p>
                 </div>
                 <p class="location">
                     <span>{{ ticket.event_location }}</span>
-                    <span class="separator"><i class="far fa-smile"></i></span>
-                    <span>{{ ticket.event_city }}</span>
+                    {% if ticket.event_address %}
+                    <span class="separator"><i class="fas fa-map-marker-alt"></i></span>
+                    <span>{{ ticket.event_address }}</span>
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -299,11 +262,7 @@ TICKET_HTML_TEMPLATE = """
             </p>
             <div class="right-info-container">
                 <div class="show-name">
-                    <h1>{{ ticket.event_title }}</h1>
-                </div>
-                <div class="time">
-                    <p>{{ ticket.event_time }} <span>TO</span> {{ ticket.event_end_time }}</p>
-                    <p>DOORS <span>@</span> {{ ticket.doors_open_time }}</p>
+                    <h1>{{ ticket.ticket_type }}</h1>
                 </div>
                 <div class="barcode">
                     <img src="{{ ticket.qr_code }}" alt="QR code">
@@ -311,6 +270,9 @@ TICKET_HTML_TEMPLATE = """
                 <p class="ticket-number">
                     #{{ ticket.reference }}
                 </p>
+                {% if ticket.organizer_name %}
+                <p style="font-size: 10px; margin-top: 10px;">Organisé par {{ ticket.organizer_name }}</p>
+                {% endif %}
             </div>
         </div>
         <div class="watermark">Généré le {{ ticket.generated_at }}</div>
@@ -331,7 +293,7 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 </head>
 <body>
     {% for ticket in tickets %}
-    <div class="ticket created-by-anniedotexe" style="{% if not loop.first %}page-break-before: always;{% endif %}">
+    <div class="ticket" style="{% if not loop.first %}page-break-before: always;{% endif %}">
         <div class="left">
             <div class="image" style="background-image: url('{{ ticket.event_image_url }}')">
                 <p class="admit-one">
@@ -344,23 +306,18 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                 </div>
             </div>
             <div class="ticket-info">
-                <p class="date">
-                    <span>{{ ticket.event_day }}</span>
-                    <span class="event-date">{{ ticket.event_date }}</span>
-                    <span>{{ ticket.event_year }}</span>
-                </p>
                 <div class="show-name">
                     <h1>{{ ticket.event_title }}</h1>
-                    <h2>{{ ticket.artist_name }}</h2>
                 </div>
                 <div class="time">
-                    <p>{{ ticket.event_time }} <span>TO</span> {{ ticket.event_end_time }}</p>
-                    <p>DOORS <span>@</span> {{ ticket.doors_open_time }}</p>
+                    <p>{{ ticket.event_date_time }}</p>
                 </div>
                 <p class="location">
                     <span>{{ ticket.event_location }}</span>
-                    <span class="separator"><i class="far fa-smile"></i></span>
-                    <span>{{ ticket.event_city }}</span>
+                    {% if ticket.event_address %}
+                    <span class="separator"><i class="fas fa-map-marker-alt"></i></span>
+                    <span>{{ ticket.event_address }}</span>
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -372,11 +329,7 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
             </p>
             <div class="right-info-container">
                 <div class="show-name">
-                    <h1>{{ ticket.event_title }}</h1>
-                </div>
-                <div class="time">
-                    <p>{{ ticket.event_time }} <span>TO</span> {{ ticket.event_end_time }}</p>
-                    <p>DOORS <span>@</span> {{ ticket.doors_open_time }}</p>
+                    <h1>{{ ticket.ticket_type }}</h1>
                 </div>
                 <div class="barcode">
                     <img src="{{ ticket.qr_code }}" alt="QR code">
@@ -384,6 +337,12 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                 <p class="ticket-number">
                     #{{ ticket.reference }}
                 </p>
+                {% if ticket.organizer_name %}
+                <p style="font-size: 10px; margin-top: 10px;">Organisé par {{ ticket.organizer_name }}</p>
+                {% endif %}
+                {% if ticket.current_ticket and ticket.total_tickets %}
+                <p style="font-size: 10px;">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
+                {% endif %}
             </div>
         </div>
         <div class="watermark">Généré le {{ ticket.generated_at }}</div>
@@ -396,9 +355,8 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 def validate_ticket_data(data):
     """Valide les données du billet selon le format Laravel"""
     required_fields = [
-        'event_title', 'artist_name', 'event_day', 'event_date', 'event_year',
-        'event_time', 'event_end_time', 'doors_open_time', 'event_location', 
-        'event_city', 'qr_code', 'reference'
+        'event_title', 'event_date_time', 'event_location',
+        'ticket_type', 'qr_code', 'reference'
     ]
     
     for field in required_fields:
@@ -407,7 +365,7 @@ def validate_ticket_data(data):
     
     # Champs optionnels avec valeurs par défaut
     if 'event_image_url' not in data or not data['event_image_url']:
-        data['event_image_url'] = "https://media.pitchfork.com/photos/60db53e71dfc7ddc9f5086f9/1:1/w_1656,h_1656,c_limit/Olivia-Rodrigo-Sour-Prom.jpg"
+        data['event_image_url'] = "data:image/svg+xml;base64,..."  # Image par défaut
     
     if 'generated_at' not in data:
         data['generated_at'] = datetime.now().strftime("%d/%m/%Y à %H:%M")
@@ -458,8 +416,7 @@ def health_check():
         'status': 'healthy',
         'service': 'PDF Ticket Generator',
         'timestamp': datetime.now().isoformat(),
-        'version': '4.0.0',
-        'features': ['New Ticket Design', 'Multiple Tickets', 'QR Code Support']
+        'version': '4.0.0'
     })
 
 @app.route('/generate-ticket', methods=['POST'])
@@ -556,44 +513,6 @@ def generate_multiple_tickets():
     except Exception as e:
         logger.error(f"Erreur génération billets multiples: {e}")
         return jsonify({'error': 'Erreur interne du serveur'}), 500
-
-@app.route('/preview-ticket', methods=['POST'])
-def preview_ticket():
-    """Génère un aperçu HTML du billet"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'ticket' not in data:
-            return jsonify({'error': 'Données de billet requises'}), 400
-            
-        ticket_data = validate_ticket_data(data['ticket'])
-        
-        if 'event_image_url' in ticket_data and ticket_data['event_image_url']:
-            processed_image = process_image_url(ticket_data['event_image_url'])
-            ticket_data['event_image_url'] = processed_image
-        
-        html_content = render_template_string(TICKET_HTML_TEMPLATE, ticket=ticket_data)
-        
-        return f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>{TICKET_CSS}</style>
-            <title>Aperçu Billet - {ticket_data.get('event_title', 'Événement')}</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-        </head>
-        <body style="background: #f5f7fa; padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-            <div style="transform: scale(0.8); transform-origin: center;">
-                {html_content}
-            </div>
-        </body>
-        </html>
-        """
-        
-    except Exception as e:
-        logger.error(f"Erreur aperçu: {e}")
-        return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
