@@ -21,308 +21,251 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
 # CSS pour le design de billet
 TICKET_CSS = """
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
 
-@page {
-    size: 210mm 100mm;
-    margin: 0;
-    padding: 0;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body, html {
-    height: 100vh;
-    font-family: "Montserrat", sans-serif;
-    background: #f5f5f5;
-    color: #333;
-    font-size: 14px;
-}
-
-.ticket {
-    margin: 0 auto;
-    display: flex;
-    background: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    width: 210mm;
-    height: 100mm;
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-.left {
-    display: flex;
-    width: 70%;
-    position: relative;
-}
-
-.left::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%);
-    z-index: 1;
-}
-
-.image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.9);
-    z-index: 0;
-}
-
-.admit-one {
-    position: absolute;
-    color: rgba(255,255,255,0.8);
-    height: 100%;
-    padding: 0 15px;
-    letter-spacing: 0.15em;
-    display: flex;
-    text-align: center;
-    justify-content: space-around;
-    writing-mode: vertical-rl;
-    transform: rotate(-180deg);
-    font-size: 12px;
-    font-weight: 600;
-    z-index: 2;
-}
-
-.admit-one span {
-    margin: 5px 0;
-}
-
-.left .ticket-number {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    padding: 5px 10px;
-    color: white;
-    font-weight: bold;
-    background: rgba(0,0,0,0.5);
-    border-radius: 4px;
-    z-index: 2;
-    font-size: 12px;
-}
-
-.ticket-info {
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    flex-grow: 1;
-    position: relative;
-    z-index: 2;
-    color: white;
-}
-
-.date {
-    border-top: 2px solid rgba(255,255,255,0.3);
-    border-bottom: 2px solid rgba(255,255,255,0.3);
-    padding: 8px 0;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-    margin: 15px 0;
-    font-size: 16px;
-    letter-spacing: 1px;
-}
-
-.show-name {
-    font-family: "Playfair Display", serif;
-    font-size: 36px;
-    color: white;
-    margin-bottom: 5px;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    line-height: 1.2;
-}
-
-.show-name h1 {
-    margin: 0;
-    padding: 0;
-    font-size: inherit;
-}
-
-.time {
-    padding: 10px 0;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-weight: 600;
-    width: 100%;
-    font-size: 16px;
-}
-
-.time p {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.time i {
-    font-size: 18px;
-}
-
-.location {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    padding-top: 15px;
-    margin-top: 15px;
-    border-top: 2px solid rgba(255,255,255,0.3);
-    gap: 8px;
-}
-
-.location span {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.location i {
-    font-size: 16px;
-    color: rgba(255,255,255,0.8);
-}
-
-.right {
-    width: 30%;
-    border-left: 1px dashed #ddd;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 25px;
-    background: white;
-}
-
-.right .admit-one {
-    color: rgba(0,0,0,0.3);
-}
-
-.right .right-info-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-}
-
-.right .show-name {
-    font-family: "Montserrat", sans-serif;
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
-    text-shadow: none;
-    font-weight: 700;
-}
-
-.barcode {
-    height: 120px;
-    width: 120px;
-    margin: 20px 0;
-    padding: 10px;
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.barcode img {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-.right .ticket-number {
-    color: #666;
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.watermark {
-    position: absolute;
-    bottom: 8px;
-    right: 12px;
-    font-size: 8px;
-    color: rgba(0, 0, 0, 0.3);
-    font-weight: 400;
-    font-family: "Montserrat", sans-serif;
-}
-
-.ticket-type {
-    background: #4a437e;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.organizer {
-    font-size: 11px;
-    margin-top: 10px;
-    color: #888;
-}
-
-.ticket-count {
-    font-size: 11px;
-    color: #888;
-    margin-top: 5px;
-}
-
-.perforation {
-    position: absolute;
-    left: -5px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 80%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.perforation span {
-    display: block;
-    width: 10px;
-    height: 10px;
-    background: #f5f5f5;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-}
-
-@media print {
-    body { 
-        margin: 0; 
-        background: white;
+    body {
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      padding: 10px;
     }
-    .ticket { 
-        box-shadow: none;
-        border-radius: 0;
+
+    .ticket-container {
+      width: 900px;
+      height: 70mm;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
     }
-}
+
+    .ticket {
+      display: flex;
+      height: 100%;
+      background: white;
+      position: relative;
+    }
+
+    .ticket::after {
+      content: '';
+      position: absolute;
+      left: 75%;
+      height: 100%;
+      width: 1px;
+      background: repeating-linear-gradient(to bottom,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.5) 10px,
+        rgba(255,255,255,0.5) 20px);
+      z-index: 2;
+    }
+
+    .ticket-left {
+      width: 45%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-image-container {
+      flex-grow: 1;
+      overflow: hidden;
+      position: relative;
+      margin-left: -15%;
+      width: 115%;
+    }
+
+    .event-image-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 30%;
+      background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 1));
+    }
+
+    .event-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .price-tag {
+      background: #ffd700;
+      color: #0f1a3d;
+      padding: 8px 25px;
+      border-radius: 0 50px 50px 0;
+      font-size: 18px;
+      font-weight: 700;
+      margin-left: -20px;
+      margin-top: 20px;
+      width: fit-content;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      position: absolute;
+      top: 0;
+      z-index: 2;
+    }
+
+    .ticket-center {
+      width: 60%;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      background: #f8f9fa;
+      position: relative;
+      align-items: center;
+    }
+
+    .ticket-right {
+      width: 20%;
+      background: #0f1a3d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      padding: 20px;
+    }
+
+    .ticket-type {
+      background: #ffd700;
+      color: #0f1a3d;
+      padding: 8px 15px;
+      border-radius: 0 0 10px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 9px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      width: 70%;
+      text-align: center;
+      position: absolute;
+      top: 0px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+
+    .event-title-container {
+      width: 100%;
+      z-index: 2;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .event-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #0f1a3d;
+      line-height: 1.2;
+      text-transform: uppercase;
+      text-shadow: 1px 2px 3px rgba(187, 184, 184, 0.5);
+      margin: 0;
+      white-space: normal;
+      word-wrap: break-word;
+      padding: 0 10px;
+    }
+
+    .ticket-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      width: 100%;
+      padding: 0 10px;
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .info-icon {
+      width: 20px;
+      height: 20px;
+      background: #0f1a3d;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+      font-size: 10px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #495057;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 13px;
+      color: #212529;
+      font-weight: 500;
+      padding-left: 28px;
+    }
+
+    .info-organisateur {
+        text-align: center;
+        padding-top: 30px;
+    }
+
+    .ticket-qr {
+      width: 80px;
+      height: 80px;
+      background: white;
+      padding: 5px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      margin-top: 25px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .ticket-qr img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .qr-label {
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .ticket-number {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-family: monospace;
+      margin-top: 5px;
+    }
+
+    .ticket-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px;
+      text-align: center;
+      font-size: 10px;
+      color: #6c757d;
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      font-weight: 500;
+      z-index: 2;
+    }
 """
 
 # Template HTML adapté aux données Laravel
@@ -330,75 +273,85 @@ TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billet - {{ ticket.event_title }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket - MOKILIEVENT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+  <div class="ticket-container">
     <div class="ticket">
-        <div class="left">
-            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')"></div>
-            <p class="admit-one">
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-            </p>
-            <div class="ticket-number">
-                <p>#{{ ticket.reference }}</p>
-            </div>
-            <div class="ticket-info">
-                <div class="show-name">
-                    <h1>{{ ticket.event_title }}</h1>
-                </div>
-                <div class="date">
-                    <i class="far fa-calendar-alt"></i> {{ ticket.event_date_time }}
-                </div>
-                <div class="time">
-                    <p><i class="far fa-clock"></i> {{ ticket.event_time }}</p>
-                </div>
-                <div class="location">
-                    <span><i class="fas fa-map-marker-alt"></i> {{ ticket.event_location }}</span>
-                    {% if ticket.event_address %}
-                    <span>{{ ticket.event_address }}</span>
-                    {% endif %}
-                </div>
-            </div>
+      <div class="ticket-left">
+        <div class="price-tag">
+          {{ number_format($ticket->pivot->unit_price, 0, ',', ' ') }} FCFA
         </div>
-        <div class="right">
-            <div class="perforation">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <p class="admit-one">
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-            </p>
-            <div class="right-info-container">
-                <div class="ticket-type">{{ ticket.ticket_type }}</div>
-                <div class="show-name">
-                    <h1>Billet d'entrée</h1>
-                </div>
-                <div class="barcode">
-                    <img src="{{ ticket.qr_code }}" alt="QR code">
-                </div>
-                <p class="ticket-number">
-                    #{{ ticket.reference }}
-                </p>
-                {% if ticket.organizer_name %}
-                <p class="organizer">Organisé par {{ ticket.organizer_name }}</p>
-                {% endif %}
-                {% if ticket.current_ticket and ticket.total_tickets %}
-                <p class="ticket-count">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
-                {% endif %}
-            </div>
+        <div class="event-image-container">
+          @if($event->image)
+            <img class="event-image" src="{{ public_path('storage/' . $event->image) }}" alt="{{ $event->title }}">
+          @else
+            <img class="event-image" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Événement">
+          @endif
         </div>
-        <div class="watermark">Généré le {{ ticket.generated_at }}</div>
+      </div>
+
+      <div class="ticket-center">
+        <div class="event-title-container">
+          <h1 class="event-title">{{ strtoupper($event->title) }}</h1>
+        </div>
+
+        <div class="ticket-info">
+          <div class="info-group">
+            <div class="info-header">
+              <div class="info-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <span class="info-label">DATE & HEURE</span>
+            </div>
+            <span class="info-value">{{ $event->start_date->format('d M Y') }}</span>
+            <span class="info-value">{{ $event->start_date->format('H:i') }}-{{ $event->end_date->format('H:i') }}</span>
+          </div>
+
+          <div class="info-group">
+            <div class="info-header">
+              <div class="info-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <span class="info-label">LIEU</span>
+            </div>
+            <span class="info-value">{{ $event->lieu ?? 'Lieu non spécifié' }}</span>
+            <span class="info-value">{{ $event->ville }}, {{ $event->adresse }}, {{ $event->pays }}</span>
+          </div>
+        </div>
+        <div class="info-organisateur">
+            <span class="info-value">Organisé par : <b>{{ $event->organizer->company_name ?? 'Organisateur non spécifié' }}</b></span>
+        </div>
+      </div>
+
+      <div class="ticket-right">
+        <div class="ticket-type">
+          {{ strtoupper($ticket->nom) }}
+        </div>
+
+        <div class="qr-label">SCANNEZ CE QR CODE</div>
+
+        <div class="ticket-qr">
+          @if($payment->qr_code)
+            <img src="{{ public_path('storage/' . $payment->qr_code) }}" alt="QR Code">
+          @else
+            <img src="{{ $qrCode }}" alt="QR Code">
+          @endif
+        </div>
+
+        <div class="ticket-number">
+          RÉF: {{ $payment->matricule }}{{ isset($ticketIndex) ? '-'.$ticketIndex : '' }}
+        </div>
+      </div>
+
+      <div class="ticket-footer">
+        Info Line : {{ $event->organizer->phone_primary ?? '+000 00 00 00 00' }} {{ $event->organizer->phone_secondary ? '/ ' . $event->organizer->phone_secondary : '' }} | Billet valable pour une personne • Non remboursable | MOKILIEVENT
+      </div>
     </div>
+  </div>
 </body>
 </html>
 """
@@ -408,75 +361,85 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billet - {{ ticket.event_title }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket - MOKILIEVENT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+  <div class="ticket-container">
     <div class="ticket">
-        <div class="left">
-            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')"></div>
-            <p class="admit-one">
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-            </p>
-            <div class="ticket-number">
-                <p>#{{ ticket.reference }}</p>
-            </div>
-            <div class="ticket-info">
-                <div class="show-name">
-                    <h1>{{ ticket.event_title }}</h1>
-                </div>
-                <div class="date">
-                    <i class="far fa-calendar-alt"></i> {{ ticket.event_date_time }}
-                </div>
-                <div class="time">
-                    <p><i class="far fa-clock"></i> {{ ticket.event_time }}</p>
-                </div>
-                <div class="location">
-                    <span><i class="fas fa-map-marker-alt"></i> {{ ticket.event_location }}</span>
-                    {% if ticket.event_address %}
-                    <span>{{ ticket.event_address }}</span>
-                    {% endif %}
-                </div>
-            </div>
+      <div class="ticket-left">
+        <div class="price-tag">
+          {{ number_format($ticket->pivot->unit_price, 0, ',', ' ') }} FCFA
         </div>
-        <div class="right">
-            <div class="perforation">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <p class="admit-one">
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-                <span>ADMIT ONE</span>
-            </p>
-            <div class="right-info-container">
-                <div class="ticket-type">{{ ticket.ticket_type }}</div>
-                <div class="show-name">
-                    <h1>Billet d'entrée</h1>
-                </div>
-                <div class="barcode">
-                    <img src="{{ ticket.qr_code }}" alt="QR code">
-                </div>
-                <p class="ticket-number">
-                    #{{ ticket.reference }}
-                </p>
-                {% if ticket.organizer_name %}
-                <p class="organizer">Organisé par {{ ticket.organizer_name }}</p>
-                {% endif %}
-                {% if ticket.current_ticket and ticket.total_tickets %}
-                <p class="ticket-count">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
-                {% endif %}
-            </div>
+        <div class="event-image-container">
+          @if($event->image)
+            <img class="event-image" src="{{ public_path('storage/' . $event->image) }}" alt="{{ $event->title }}">
+          @else
+            <img class="event-image" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Événement">
+          @endif
         </div>
-        <div class="watermark">Généré le {{ ticket.generated_at }}</div>
+      </div>
+
+      <div class="ticket-center">
+        <div class="event-title-container">
+          <h1 class="event-title">{{ strtoupper($event->title) }}</h1>
+        </div>
+
+        <div class="ticket-info">
+          <div class="info-group">
+            <div class="info-header">
+              <div class="info-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <span class="info-label">DATE & HEURE</span>
+            </div>
+            <span class="info-value">{{ $event->start_date->format('d M Y') }}</span>
+            <span class="info-value">{{ $event->start_date->format('H:i') }}-{{ $event->end_date->format('H:i') }}</span>
+          </div>
+
+          <div class="info-group">
+            <div class="info-header">
+              <div class="info-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <span class="info-label">LIEU</span>
+            </div>
+            <span class="info-value">{{ $event->lieu ?? 'Lieu non spécifié' }}</span>
+            <span class="info-value">{{ $event->ville }}, {{ $event->adresse }}, {{ $event->pays }}</span>
+          </div>
+        </div>
+        <div class="info-organisateur">
+            <span class="info-value">Organisé par : <b>{{ $event->organizer->company_name ?? 'Organisateur non spécifié' }}</b></span>
+        </div>
+      </div>
+
+      <div class="ticket-right">
+        <div class="ticket-type">
+          {{ strtoupper($ticket->nom) }}
+        </div>
+
+        <div class="qr-label">SCANNEZ CE QR CODE</div>
+
+        <div class="ticket-qr">
+          @if($payment->qr_code)
+            <img src="{{ public_path('storage/' . $payment->qr_code) }}" alt="QR Code">
+          @else
+            <img src="{{ $qrCode }}" alt="QR Code">
+          @endif
+        </div>
+
+        <div class="ticket-number">
+          RÉF: {{ $payment->matricule }}{{ isset($ticketIndex) ? '-'.$ticketIndex : '' }}
+        </div>
+      </div>
+
+      <div class="ticket-footer">
+        Info Line : {{ $event->organizer->phone_primary ?? '+000 00 00 00 00' }} {{ $event->organizer->phone_secondary ? '/ ' . $event->organizer->phone_secondary : '' }} | Billet valable pour une personne • Non remboursable | MOKILIEVENT
+      </div>
     </div>
+  </div>
 </body>
 </html>
 """
