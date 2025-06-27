@@ -19,418 +19,551 @@ CORS(app)
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
-# CSS pour le design de billet
+# CSS amélioré pour le design de billet (180mm x 70mm)
 TICKET_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800&display=swap');
+
+@page {
+    size: 180mm 70mm;
+    margin: 0;
+}
 
 body {
-    background: #f5f5f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
-    padding: 10px;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    width: 180mm;
+    height: 70mm;
+    overflow: hidden;
 }
 
 .ticket-container {
-    width: 900px;
+    width: 180mm;
     height: 70mm;
     position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 .ticket {
     display: flex;
     height: 100%;
-    background: white;
     position: relative;
+    background: white;
+    margin: 3mm;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
 }
 
+/* Ligne de découpe perforée */
+.ticket::before {
+    content: '';
+    position: absolute;
+    right: 45mm;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #e0e7ff 0px,
+        #e0e7ff 8px,
+        transparent 8px,
+        transparent 16px
+    );
+    z-index: 10;
+}
+
+/* Cercles de perforation */
 .ticket::after {
     content: '';
     position: absolute;
-    left: 75%;
-    height: 100%;
-    width: 1px;
-    background: repeating-linear-gradient(to bottom,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.5) 10px,
-        rgba(255,255,255,0.5) 20px);
-    z-index: 2;
+    right: 44mm;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    box-shadow: 
+        0 -20px 0 #e0e7ff,
+        0 -40px 0 #e0e7ff,
+        0 20px 0 #e0e7ff,
+        0 40px 0 #e0e7ff;
+    z-index: 11;
+}
+
+.ticket-main {
+    flex: 1;
+    display: flex;
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .ticket-left {
-    width: 45%;
+    width: 60mm;
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .event-image-container {
-    flex-grow: 1;
-    overflow: hidden;
+    width: 100%;
+    height: 100%;
     position: relative;
-    margin-left: -15%;
-    width: 115%;
-}
-
-.event-image-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 30%;
-    background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 1));
+    overflow: hidden;
 }
 
 .event-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0.9;
 }
 
-.price-tag {
-    background: #ffd700;
-    color: #0f1a3d;
-    padding: 8px 25px;
-    border-radius: 0 50px 50px 0;
-    font-size: 18px;
-    font-weight: 700;
-    margin-left: -20px;
-    margin-top: 20px;
-    width: fit-content;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+.image-overlay {
     position: absolute;
     top: 0;
-    z-index: 2;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg, 
+        rgba(102, 126, 234, 0.3) 0%, 
+        rgba(118, 75, 162, 0.3) 100%
+    );
+}
+
+.price-badge {
+    position: absolute;
+    top: 8mm;
+    left: -2mm;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a202c;
+    padding: 6px 20px 6px 10px;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 0 20px 20px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 5;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
 }
 
 .ticket-center {
-    width: 60%;
-    padding: 20px 15px;
+    flex: 1;
+    padding: 8mm 6mm;
     display: flex;
     flex-direction: column;
-    background: #f8f9fa;
+    justify-content: space-between;
+    background: white;
     position: relative;
-    align-items: center;
 }
 
-.ticket-right {
-    width: 20%;
-    background: #0f1a3d;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    padding: 20px;
-}
-
-.ticket-type {
-    background: #ffd700;
-    color: #0f1a3d;
-    padding: 8px 15px;
-    border-radius: 0 0 10px 10px;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 9px;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    width: 70%;
-    text-align: center;
-    position: absolute;
-    top: 0px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-}
-
-.event-title-container {
-    width: 100%;
-    z-index: 2;
-    margin-bottom: 20px;
-    text-align: center;
+.event-header {
+    margin-bottom: 6mm;
 }
 
 .event-title {
     font-family: 'Playfair Display', serif;
-    font-size: 26px;
+    font-size: 20px;
     font-weight: 700;
-    color: #0f1a3d;
+    color: #1a202c;
     line-height: 1.2;
+    margin: 0 0 4px 0;
     text-transform: uppercase;
-    text-shadow: 1px 2px 3px rgba(187, 184, 184, 0.5);
-    margin: 0;
-    white-space: normal;
-    word-wrap: break-word;
-    padding: 0 10px;
-}
-
-.ticket-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    width: 100%;
-    padding: 0 10px;
-}
-
-.info-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.info-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.info-icon {
-    width: 20px;
-    height: 20px;
-    background: #0f1a3d;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 8px;
-    font-size: 10px;
-}
-
-.info-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #495057;
     letter-spacing: 0.5px;
 }
 
-.info-value {
-    font-size: 13px;
-    color: #212529;
+.event-subtitle {
+    font-size: 11px;
+    color: #64748b;
     font-weight: 500;
-    padding-left: 28px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.info-organisateur {
+.ticket-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+    margin-bottom: 4mm;
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.detail-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a202c;
+    line-height: 1.3;
+}
+
+.detail-icon {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 3px;
+    font-size: 8px;
+}
+
+.organizer-info {
+    padding: 4mm 0 0 0;
+    border-top: 1px solid #e2e8f0;
     text-align: center;
-    padding-top: 30px;
 }
 
-.ticket-qr {
-    width: 80px;
-    height: 80px;
-    background: white;
-    padding: 5px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    margin-top: 25px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+.organizer-label {
+    font-size: 9px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 2px;
 }
 
-.ticket-qr img {
-    width: 100%;
-    height: 100%;
+.organizer-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.ticket-stub {
+    width: 45mm;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 8mm;
+}
+
+.ticket-type-badge {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a202c;
+    padding: 4px 12px;
+    border-radius: 0 0 8px 8px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .qr-label {
-    color: white;
-    font-size: 12px;
-    text-align: center;
-    margin-bottom: 10px;
+    color: #94a3b8;
+    font-size: 9px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.2;
 }
 
-.ticket-number {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.8);
+.qr-code-container {
+    width: 50px;
+    height: 50px;
+    background: white;
+    padding: 4px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-code-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+}
+
+.ticket-reference {
+    color: #64748b;
+    font-size: 8px;
+    font-family: 'Courier New', monospace;
     text-align: center;
-    font-family: monospace;
-    margin-top: 5px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.ticket-reference-label {
+    font-size: 7px;
+    color: #475569;
+    margin-bottom: 2px;
 }
 
 .ticket-footer {
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 0;
-    padding: 8px;
-    text-align: center;
-    font-size: 10px;
-    color: #6c757d;
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    right: 45mm;
+    height: 6mm;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #64748b;
     font-weight: 500;
-    z-index: 2;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Animations et effets */
+.ticket-container {
+    animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media print {
+    .ticket-container {
+        animation: none;
+    }
 }
 """
 
-# Template HTML corrigé pour Flask/Jinja2
+# Template HTML amélioré
 TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticket - {{ ticket.event_title }}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billet - {{ ticket.event_title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="ticket-container">
-    <div class="ticket">
-      <div class="ticket-left">
-        <div class="price-tag">
-          {{ ticket.ticket_price if ticket.ticket_price else 'GRATUIT' }}
-        </div>
-        <div class="event-image-container">
-          <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
-        </div>
-      </div>
+    <div class="ticket-container">
+        <div class="ticket">
+            <div class="ticket-main">
+                <div class="ticket-left">
+                    {% if ticket.ticket_price %}
+                    <div class="price-badge">
+                        {{ ticket.ticket_price }}
+                    </div>
+                    {% endif %}
+                    <div class="event-image-container">
+                        <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
+                        <div class="image-overlay"></div>
+                    </div>
+                </div>
 
-      <div class="ticket-center">
-        <div class="event-title-container">
-          <h1 class="event-title">{{ ticket.event_title }}</h1>
-        </div>
+                <div class="ticket-center">
+                    <div class="event-header">
+                        <h1 class="event-title">{{ ticket.event_title }}</h1>
+                        <div class="event-subtitle">Billet d'entrée</div>
+                    </div>
 
-        <div class="ticket-info">
-          <div class="info-group">
-            <div class="info-header">
-              <div class="info-icon">
-                <i class="fas fa-calendar-alt"></i>
-              </div>
-              <span class="info-label">DATE & HEURE</span>
+                    <div class="ticket-details">
+                        <div class="detail-group">
+                            <div class="detail-label">
+                                <span class="detail-icon">
+                                    <i class="fas fa-calendar"></i>
+                                </span>
+                                Date & Heure
+                            </div>
+                            <div class="detail-value">{{ ticket.event_date_time }}</div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">
+                                <span class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                                Lieu
+                            </div>
+                            <div class="detail-value">
+                                {{ ticket.event_location }}
+                                {% if ticket.event_address %}
+                                <br><span style="font-size: 10px; color: #64748b;">{{ ticket.event_address }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="organizer-info">
+                        <div class="organizer-label">Organisé par</div>
+                        <div class="organizer-name">{{ ticket.organizer_name }}</div>
+                    </div>
+                </div>
             </div>
-            <span class="info-value">{{ ticket.event_date_time }}</span>
-          </div>
 
-          <div class="info-group">
-            <div class="info-header">
-              <div class="info-icon">
-                <i class="fas fa-map-marker-alt"></i>
-              </div>
-              <span class="info-label">LIEU</span>
+            <div class="ticket-stub">
+                <div class="ticket-type-badge">
+                    {{ ticket.ticket_type }}
+                </div>
+
+                <div class="qr-section">
+                    <div class="qr-label">
+                        Scanner pour<br>valider
+                    </div>
+
+                    <div class="qr-code-container">
+                        <img src="{{ ticket.qr_code }}" alt="QR Code de validation">
+                    </div>
+
+                    <div class="ticket-reference">
+                        <div class="ticket-reference-label">REF</div>
+                        {{ ticket.reference }}
+                        {% if ticket.current_ticket and ticket.total_tickets %}
+                        <br>{{ ticket.current_ticket }}/{{ ticket.total_tickets }}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <span class="info-value">{{ ticket.event_location }}</span>
-            {% if ticket.event_address %}
-            <span class="info-value">{{ ticket.event_address }}</span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="info-organisateur">
-            <span class="info-value">Organisé par : <b>{{ ticket.organizer_name }}</b></span>
-        </div>
-      </div>
 
-      <div class="ticket-right">
-        <div class="ticket-type">
-          {{ ticket.ticket_type }}
+            <div class="ticket-footer">
+                Billet nominatif • Non cessible • Valable une seule fois
+            </div>
         </div>
-
-        <div class="qr-label">SCANNEZ CE QR CODE</div>
-
-        <div class="ticket-qr">
-          <img src="{{ ticket.qr_code }}" alt="QR Code">
-        </div>
-
-        <div class="ticket-number">
-          RÉF: {{ ticket.reference }}
-        </div>
-      </div>
-
-      <div class="ticket-footer">
-        Billet valable pour une personne • Non remboursable
-      </div>
     </div>
-  </div>
 </body>
 </html>
 """
 
-# Template pour tickets multiples
+# Template pour tickets multiples avec page break
 MULTIPLE_TICKETS_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tickets - {{ tickets[0].event_title }}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billets - {{ tickets[0].event_title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
 </head>
 <body>
-  {% for ticket in tickets %}
-  <div class="ticket-container" style="{% if not loop.first %}page-break-before: always;{% endif %}">
-    <div class="ticket">
-      <div class="ticket-left">
-        <div class="price-tag">
-          {{ ticket.ticket_price if ticket.ticket_price else 'GRATUIT' }}
-        </div>
-        <div class="event-image-container">
-          <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
-        </div>
-      </div>
+    {% for ticket in tickets %}
+    <div class="ticket-container{% if not loop.first %} page-break{% endif %}">
+        <div class="ticket">
+            <div class="ticket-main">
+                <div class="ticket-left">
+                    {% if ticket.ticket_price %}
+                    <div class="price-badge">
+                        {{ ticket.ticket_price }}
+                    </div>
+                    {% endif %}
+                    <div class="event-image-container">
+                        <img class="event-image" src="{{ ticket.event_image_url }}" alt="{{ ticket.event_title }}">
+                        <div class="image-overlay"></div>
+                    </div>
+                </div>
 
-      <div class="ticket-center">
-        <div class="event-title-container">
-          <h1 class="event-title">{{ ticket.event_title }}</h1>
-        </div>
+                <div class="ticket-center">
+                    <div class="event-header">
+                        <h1 class="event-title">{{ ticket.event_title }}</h1>
+                        <div class="event-subtitle">Billet d'entrée</div>
+                    </div>
 
-        <div class="ticket-info">
-          <div class="info-group">
-            <div class="info-header">
-              <div class="info-icon">
-                <i class="fas fa-calendar-alt"></i>
-              </div>
-              <span class="info-label">DATE & HEURE</span>
+                    <div class="ticket-details">
+                        <div class="detail-group">
+                            <div class="detail-label">
+                                <span class="detail-icon">
+                                    <i class="fas fa-calendar"></i>
+                                </span>
+                                Date & Heure
+                            </div>
+                            <div class="detail-value">{{ ticket.event_date_time }}</div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">
+                                <span class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                                Lieu
+                            </div>
+                            <div class="detail-value">
+                                {{ ticket.event_location }}
+                                {% if ticket.event_address %}
+                                <br><span style="font-size: 10px; color: #64748b;">{{ ticket.event_address }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="organizer-info">
+                        <div class="organizer-label">Organisé par</div>
+                        <div class="organizer-name">{{ ticket.organizer_name }}</div>
+                    </div>
+                </div>
             </div>
-            <span class="info-value">{{ ticket.event_date_time }}</span>
-          </div>
 
-          <div class="info-group">
-            <div class="info-header">
-              <div class="info-icon">
-                <i class="fas fa-map-marker-alt"></i>
-              </div>
-              <span class="info-label">LIEU</span>
+            <div class="ticket-stub">
+                <div class="ticket-type-badge">
+                    {{ ticket.ticket_type }}
+                </div>
+
+                <div class="qr-section">
+                    <div class="qr-label">
+                        Scanner pour<br>valider
+                    </div>
+
+                    <div class="qr-code-container">
+                        <img src="{{ ticket.qr_code }}" alt="QR Code de validation">
+                    </div>
+
+                    <div class="ticket-reference">
+                        <div class="ticket-reference-label">REF</div>
+                        {{ ticket.reference }}
+                        {% if ticket.current_ticket and ticket.total_tickets %}
+                        <br>{{ ticket.current_ticket }}/{{ ticket.total_tickets }}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <span class="info-value">{{ ticket.event_location }}</span>
-            {% if ticket.event_address %}
-            <span class="info-value">{{ ticket.event_address }}</span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="info-organisateur">
-            <span class="info-value">Organisé par : <b>{{ ticket.organizer_name }}</b></span>
-        </div>
-      </div>
 
-      <div class="ticket-right">
-        <div class="ticket-type">
-          {{ ticket.ticket_type }}
+            <div class="ticket-footer">
+                Billet nominatif • Non cessible • Valable une seule fois
+            </div>
         </div>
-
-        <div class="qr-label">SCANNEZ CE QR CODE</div>
-
-        <div class="ticket-qr">
-          <img src="{{ ticket.qr_code }}" alt="QR Code">
-        </div>
-
-        <div class="ticket-number">
-          RÉF: {{ ticket.reference }}
-          {% if ticket.current_ticket and ticket.total_tickets %}
-          <br>({{ ticket.current_ticket }}/{{ ticket.total_tickets }})
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="ticket-footer">
-        Billet valable pour une personne • Non remboursable
-      </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
 </body>
 </html>
 """
@@ -448,7 +581,8 @@ def validate_ticket_data(data):
     
     # Champs optionnels avec valeurs par défaut
     if 'event_image_url' not in data or not data['event_image_url']:
-        data['event_image_url'] = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxkZWZzPgogICAgICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNjY3ZWVhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDwvZGVmcz4KICAgIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgogICAgPHRleHQgeD0iMjAwIiB5PSIxNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1lcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+w4lWw4lORU1FTlQ8L3RleHQ+Cjwvc3ZnPg=="
+        # Image SVG par défaut plus élégante
+        data['event_image_url'] = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0idXJsKCNncmFkKSIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI4IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+w4lWw4lORU1FTlQ8L3RleHQ+Cjwvc3ZnPg=="
     
     if 'organizer_name' not in data:
         data['organizer_name'] = "Organisateur"
@@ -474,7 +608,9 @@ def process_image_url(image_url):
         # Si c'est une URL HTTP/HTTPS, essayer de la télécharger
         if image_url.startswith(('http://', 'https://')):
             try:
-                response = requests.get(image_url, timeout=10)
+                response = requests.get(image_url, timeout=10, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                })
                 response.raise_for_status()
                 
                 content_type = response.headers.get('content-type', '')
@@ -489,7 +625,6 @@ def process_image_url(image_url):
                 logger.warning(f"Impossible de télécharger l'image: {e}")
                 return None
         
-        # Sinon, considérer comme un chemin local (non supporté en production)
         return None
         
     except Exception as e:
@@ -501,14 +636,15 @@ def health_check():
     """Endpoint de santé du service"""
     return jsonify({
         'status': 'healthy',
-        'service': 'PDF Ticket Generator',
+        'service': 'PDF Ticket Generator Pro',
         'timestamp': datetime.now().isoformat(),
-        'version': '4.0.0'
+        'version': '5.0.0',
+        'ticket_size': '180mm x 70mm'
     })
 
 @app.route('/generate-ticket', methods=['POST'])
 def generate_single_ticket():
-    """Génère un billet unique"""
+    """Génère un billet unique au format 180mm x 70mm"""
     try:
         data = request.get_json()
         
@@ -526,12 +662,17 @@ def generate_single_ticket():
         # Rendu HTML
         html_content = render_template_string(TICKET_HTML_TEMPLATE, ticket=ticket_data)
         
-        # Génération PDF
-        html_doc = HTML(string=html_content)
+        # Génération PDF avec options optimisées
+        html_doc = HTML(string=html_content, base_url=request.url_root)
         css_doc = CSS(string=TICKET_CSS)
         
         pdf_buffer = io.BytesIO()
-        html_doc.write_pdf(pdf_buffer, stylesheets=[css_doc])
+        html_doc.write_pdf(
+            pdf_buffer, 
+            stylesheets=[css_doc],
+            optimize_images=True,
+            presentational_hints=True
+        )
         pdf_buffer.seek(0)
         
         logger.info(f"Billet généré avec succès: {ticket_data.get('reference', 'N/A')}")
@@ -571,6 +712,12 @@ def generate_multiple_tickets():
         for i, ticket in enumerate(data['tickets']):
             try:
                 validated_ticket = validate_ticket_data(ticket)
+                # Ajouter numérotation automatique si pas présente
+                if 'current_ticket' not in validated_ticket:
+                    validated_ticket['current_ticket'] = i + 1
+                if 'total_tickets' not in validated_ticket:
+                    validated_ticket['total_tickets'] = len(data['tickets'])
+                    
                 if 'event_image_url' in validated_ticket and validated_ticket['event_image_url']:
                     processed_image = process_image_url(validated_ticket['event_image_url'])
                     if processed_image:
@@ -583,11 +730,16 @@ def generate_multiple_tickets():
         html_content = render_template_string(MULTIPLE_TICKETS_HTML_TEMPLATE, tickets=validated_tickets)
         
         # Génération PDF
-        html_doc = HTML(string=html_content)
+        html_doc = HTML(string=html_content, base_url=request.url_root)
         css_doc = CSS(string=TICKET_CSS)
         
         pdf_buffer = io.BytesIO()
-        html_doc.write_pdf(pdf_buffer, stylesheets=[css_doc])
+        html_doc.write_pdf(
+            pdf_buffer, 
+            stylesheets=[css_doc],
+            optimize_images=True,
+            presentational_hints=True
+        )
         pdf_buffer.seek(0)
         
         logger.info(f"Billets multiples générés: {len(validated_tickets)} billets")
@@ -602,6 +754,38 @@ def generate_multiple_tickets():
     except Exception as e:
         logger.error(f"Erreur génération billets multiples: {str(e)}", exc_info=True)
         return jsonify({'error': 'Erreur interne du serveur', 'details': str(e)}), 500
+
+@app.route('/preview-ticket', methods=['POST'])
+def preview_ticket():
+    """Génère un aperçu HTML du billet (pour tests)"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'ticket' not in data:
+            return jsonify({'error': 'Données de billet requises'}), 400
+            
+        ticket_data = validate_ticket_data(data['ticket'])
+        
+        # Traitement de l'image
+        if 'event_image_url' in ticket_data and ticket_data['event_image_url']:
+            processed_image = process_image_url(ticket_data['event_image_url'])
+            if processed_image:
+                ticket_data['event_image_url'] = processed_image
+        
+        # Rendu HTML avec CSS intégré
+        html_content = f"""
+        <style>{TICKET_CSS}</style>
+        {render_template_string(TICKET_HTML_TEMPLATE, ticket=ticket_data)}
+        """
+        
+        return html_content, 200, {'Content-Type': 'text/html; charset=utf-8'}
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+        
+    except Exception as e:
+        logger.error(f"Erreur aperçu billet: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Erreur interne du serveur'}), 500
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
