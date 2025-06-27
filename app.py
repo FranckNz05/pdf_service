@@ -19,13 +19,18 @@ CORS(app)
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
-# CSS amélioré pour le design de billet (180mm x 70mm)
+# CSS amélioré pour le design de billet (180mm x 70mm) - Version corrigée
 TICKET_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800&display=swap');
 
 @page {
     size: 180mm 70mm;
     margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
@@ -42,20 +47,17 @@ body {
     width: 180mm;
     height: 70mm;
     position: relative;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 .ticket {
     display: flex;
     height: 100%;
+    width: 100%;
     position: relative;
     background: white;
-    margin: 3mm;
-    border-radius: 12px;
     overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
 }
 
 /* Ligne de découpe perforée */
@@ -68,10 +70,10 @@ body {
     width: 2px;
     background: repeating-linear-gradient(
         to bottom,
-        #e0e7ff 0px,
-        #e0e7ff 8px,
-        transparent 8px,
-        transparent 16px
+        #ddd 0px,
+        #ddd 4px,
+        transparent 4px,
+        transparent 8px
     );
     z-index: 10;
 }
@@ -83,15 +85,21 @@ body {
     right: 44mm;
     top: 50%;
     transform: translateY(-50%);
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: #e0e7ff;
+    background: #ddd;
     box-shadow: 
-        0 -20px 0 #e0e7ff,
-        0 -40px 0 #e0e7ff,
-        0 20px 0 #e0e7ff,
-        0 40px 0 #e0e7ff;
+        0 -25mm 0 #ddd,
+        0 -20mm 0 #ddd,
+        0 -15mm 0 #ddd,
+        0 -10mm 0 #ddd,
+        0 -5mm 0 #ddd,
+        0 5mm 0 #ddd,
+        0 10mm 0 #ddd,
+        0 15mm 0 #ddd,
+        0 20mm 0 #ddd,
+        0 25mm 0 #ddd;
     z-index: 11;
 }
 
@@ -99,11 +107,13 @@ body {
     flex: 1;
     display: flex;
     position: relative;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: white;
+    width: calc(180mm - 45mm);
+    height: 100%;
 }
 
 .ticket-left {
-    width: 60mm;
+    width: 50mm;
     position: relative;
     overflow: hidden;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -120,7 +130,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.9;
+    object-position: center;
 }
 
 .image-overlay {
@@ -131,21 +141,21 @@ body {
     bottom: 0;
     background: linear-gradient(
         135deg, 
-        rgba(102, 126, 234, 0.3) 0%, 
-        rgba(118, 75, 162, 0.3) 100%
+        rgba(102, 126, 234, 0.1) 0%, 
+        rgba(118, 75, 162, 0.1) 100%
     );
 }
 
 .price-badge {
     position: absolute;
     top: 8mm;
-    left: -2mm;
+    left: 0;
     background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
     color: #1a202c;
-    padding: 6px 20px 6px 10px;
+    padding: 8px 16px 8px 12px;
     font-size: 14px;
     font-weight: 800;
-    border-radius: 0 20px 20px 0;
+    border-radius: 0 25px 25px 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 5;
     clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
@@ -153,7 +163,7 @@ body {
 
 .ticket-center {
     flex: 1;
-    padding: 8mm 6mm;
+    padding: 12mm 10mm;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -162,22 +172,29 @@ body {
 }
 
 .event-header {
-    margin-bottom: 6mm;
+    margin-bottom: 8mm;
 }
 
 .event-title {
     font-family: 'Playfair Display', serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: #1a202c;
     line-height: 1.2;
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    /* Troncature pour titres longs */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.4em;
 }
 
 .event-subtitle {
-    font-size: 11px;
+    font-size: 12px;
     color: #64748b;
     font-weight: 500;
     text-transform: uppercase;
@@ -187,63 +204,74 @@ body {
 .ticket-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4mm;
-    margin-bottom: 4mm;
+    gap: 6mm;
+    margin-bottom: 6mm;
 }
 
 .detail-group {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .detail-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
 
 .detail-value {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #1a202c;
-    line-height: 1.3;
+    line-height: 1.4;
+    /* Troncature pour valeurs longues */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .detail-icon {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    border-radius: 3px;
-    font-size: 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    flex-shrink: 0;
 }
 
 .organizer-info {
-    padding: 4mm 0 0 0;
+    padding: 6mm 0 0 0;
     border-top: 1px solid #e2e8f0;
     text-align: center;
 }
 
 .organizer-label {
-    font-size: 9px;
+    font-size: 10px;
     color: #64748b;
     font-weight: 500;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .organizer-name {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: #1a202c;
+    /* Troncature pour nom organisateur */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .ticket-stub {
@@ -254,7 +282,7 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 8mm;
+    padding: 10mm;
 }
 
 .ticket-type-badge {
@@ -264,38 +292,43 @@ body {
     transform: translateX(-50%);
     background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
     color: #1a202c;
-    padding: 4px 12px;
-    border-radius: 0 0 8px 8px;
-    font-size: 9px;
+    padding: 6px 16px;
+    border-radius: 0 0 12px 12px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40mm;
 }
 
 .qr-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 8mm;
 }
 
 .qr-label {
     color: #94a3b8;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     text-align: center;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
 .qr-code-container {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     background: white;
-    padding: 4px;
-    border-radius: 8px;
+    padding: 6px;
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
@@ -305,65 +338,51 @@ body {
 .qr-code-container img {
     width: 100%;
     height: 100%;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 .ticket-reference {
     color: #64748b;
-    font-size: 8px;
+    font-size: 9px;
     font-family: 'Courier New', monospace;
     text-align: center;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: 1.3;
+    margin-top: 6px;
 }
 
 .ticket-reference-label {
-    font-size: 7px;
-    color: #475569;
-    margin-bottom: 2px;
-}
-
-.ticket-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 45mm;
-    height: 6mm;
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 8px;
-    color: #64748b;
-    font-weight: 500;
-    border-top: 1px solid #e2e8f0;
+    color: #475569;
+    margin-bottom: 3px;
+    font-weight: 600;
 }
 
-/* Animations et effets */
-.ticket-container {
-    animation: slideIn 0.6s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Responsive adjustments */
+/* Responsive adjustments pour les petits billets */
 @media print {
     .ticket-container {
         animation: none;
     }
+    
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* Amélioration de la lisibilité sur fond sombre */
+.ticket-stub * {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Gestion des très longs textes */
+.long-text {
+    word-break: break-word;
+    hyphens: auto;
 }
 """
 
-# Template HTML amélioré
+# Template HTML amélioré avec meilleure structure
 TICKET_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -413,10 +432,10 @@ TICKET_HTML_TEMPLATE = """
                                 </span>
                                 Lieu
                             </div>
-                            <div class="detail-value">
+                            <div class="detail-value long-text">
                                 {{ ticket.event_location }}
                                 {% if ticket.event_address %}
-                                <br><span style="font-size: 10px; color: #64748b;">{{ ticket.event_address }}</span>
+                                <br><span style="font-size: 11px; color: #64748b;">{{ ticket.event_address }}</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -436,7 +455,7 @@ TICKET_HTML_TEMPLATE = """
 
                 <div class="qr-section">
                     <div class="qr-label">
-                        Scanner pour<br>valider
+                        Scanner pour<br>validation
                     </div>
 
                     <div class="qr-code-container">
@@ -444,17 +463,13 @@ TICKET_HTML_TEMPLATE = """
                     </div>
 
                     <div class="ticket-reference">
-                        <div class="ticket-reference-label">REF</div>
+                        <div class="ticket-reference-label">RÉFÉRENCE</div>
                         {{ ticket.reference }}
                         {% if ticket.current_ticket and ticket.total_tickets %}
                         <br>{{ ticket.current_ticket }}/{{ ticket.total_tickets }}
                         {% endif %}
                     </div>
                 </div>
-            </div>
-
-            <div class="ticket-footer">
-                Billet nominatif • Non cessible • Valable une seule fois
             </div>
         </div>
     </div>
@@ -518,10 +533,10 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                                 </span>
                                 Lieu
                             </div>
-                            <div class="detail-value">
+                            <div class="detail-value long-text">
                                 {{ ticket.event_location }}
                                 {% if ticket.event_address %}
-                                <br><span style="font-size: 10px; color: #64748b;">{{ ticket.event_address }}</span>
+                                <br><span style="font-size: 11px; color: #64748b;">{{ ticket.event_address }}</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -541,7 +556,7 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 
                 <div class="qr-section">
                     <div class="qr-label">
-                        Scanner pour<br>valider
+                        Scanner pour<br>validation
                     </div>
 
                     <div class="qr-code-container">
@@ -549,17 +564,13 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                     </div>
 
                     <div class="ticket-reference">
-                        <div class="ticket-reference-label">REF</div>
+                        <div class="ticket-reference-label">RÉFÉRENCE</div>
                         {{ ticket.reference }}
                         {% if ticket.current_ticket and ticket.total_tickets %}
                         <br>{{ ticket.current_ticket }}/{{ ticket.total_tickets }}
                         {% endif %}
                     </div>
                 </div>
-            </div>
-
-            <div class="ticket-footer">
-                Billet nominatif • Non cessible • Valable une seule fois
             </div>
         </div>
     </div>
@@ -638,7 +649,7 @@ def health_check():
         'status': 'healthy',
         'service': 'PDF Ticket Generator Pro',
         'timestamp': datetime.now().isoformat(),
-        'version': '5.0.0',
+        'version': '5.1.0',
         'ticket_size': '180mm x 70mm'
     })
 
