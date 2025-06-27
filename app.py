@@ -21,7 +21,7 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB max
 
 # CSS pour le design de billet
 TICKET_CSS = """
-@import url("https://fonts.googleapis.com/css2?family=Staatliches&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
 
 @page {
@@ -38,170 +38,279 @@ TICKET_CSS = """
 
 body, html {
     height: 100vh;
-    font-family: "Staatliches", cursive;
-    background: #d83565;
-    color: black;
+    font-family: "Montserrat", sans-serif;
+    background: #f5f5f5;
+    color: #333;
     font-size: 14px;
-    letter-spacing: 0.1em;
 }
 
 .ticket {
     margin: 0 auto;
     display: flex;
     background: white;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     width: 210mm;
     height: 100mm;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
 }
 
 .left {
     display: flex;
     width: 70%;
+    position: relative;
+}
+
+.left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%);
+    z-index: 1;
 }
 
 .image {
-    height: 100%;
-    width: 250px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-size: cover;
     background-position: center;
-    opacity: 0.85;
-    position: relative;
+    filter: brightness(0.9);
+    z-index: 0;
 }
 
 .admit-one {
     position: absolute;
-    color: darkgray;
+    color: rgba(255,255,255,0.8);
     height: 100%;
-    padding: 0 10px;
+    padding: 0 15px;
     letter-spacing: 0.15em;
     display: flex;
     text-align: center;
     justify-content: space-around;
     writing-mode: vertical-rl;
     transform: rotate(-180deg);
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 2;
 }
 
-.admit-one span:nth-child(2) {
-    color: white;
-    font-weight: 700;
+.admit-one span {
+    margin: 5px 0;
 }
 
 .left .ticket-number {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    padding: 5px;
+    bottom: 15px;
+    right: 15px;
+    padding: 5px 10px;
     color: white;
     font-weight: bold;
+    background: rgba(0,0,0,0.5);
+    border-radius: 4px;
+    z-index: 2;
+    font-size: 12px;
 }
 
 .ticket-info {
-    padding: 20px 30px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
-    text-align: center;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
     flex-grow: 1;
+    position: relative;
+    z-index: 2;
+    color: white;
 }
 
 .date {
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
-    padding: 5px 0;
-    font-weight: 700;
+    border-top: 2px solid rgba(255,255,255,0.3);
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+    padding: 8px 0;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    justify-content: space-around;
     width: 100%;
+    justify-content: center;
+    margin: 15px 0;
+    font-size: 16px;
+    letter-spacing: 1px;
 }
 
 .show-name {
-    font-size: 32px;
-    color: #4a437e;
-    margin-bottom: 10px;
+    font-family: "Playfair Display", serif;
+    font-size: 36px;
+    color: white;
+    margin-bottom: 5px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    line-height: 1.2;
+}
+
+.show-name h1 {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
 }
 
 .time {
     padding: 10px 0;
-    color: #4a437e;
-    text-align: center;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    font-weight: 700;
+    gap: 5px;
+    font-weight: 600;
     width: 100%;
+    font-size: 16px;
 }
 
-.time span {
-    font-weight: 400;
-    color: gray;
+.time p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time i {
+    font-size: 18px;
 }
 
 .location {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     width: 100%;
-    padding-top: 8px;
-    border-top: 1px solid gray;
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top: 2px solid rgba(255,255,255,0.3);
+    gap: 8px;
 }
 
-.location .separator {
-    font-size: 20px;
+.location span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.location i {
+    font-size: 16px;
+    color: rgba(255,255,255,0.8);
 }
 
 .right {
     width: 30%;
-    border-left: 1px dashed #404040;
+    border-left: 1px dashed #ddd;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    background: white;
 }
 
 .right .admit-one {
-    color: darkgray;
-}
-
-.right .admit-one span:nth-child(2) {
-    color: gray;
+    color: rgba(0,0,0,0.3);
 }
 
 .right .right-info-container {
     height: 100%;
-    padding: 20px 10px 20px 35px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    text-align: center;
 }
 
 .right .show-name {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+    text-shadow: none;
+    font-weight: 700;
 }
 
 .barcode {
     height: 120px;
+    width: 120px;
     margin: 20px 0;
+    padding: 10px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .barcode img {
-    height: 100%;
-    width: auto;
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
 }
 
 .right .ticket-number {
-    color: gray;
+    color: #666;
     font-weight: bold;
     margin-top: 10px;
+    font-size: 14px;
 }
 
 .watermark {
     position: absolute;
     bottom: 8px;
     right: 12px;
-    font-size: 7px;
-    color: rgba(0, 0, 0, 0.4);
-    font-weight: 500;
+    font-size: 8px;
+    color: rgba(0, 0, 0, 0.3);
+    font-weight: 400;
+    font-family: "Montserrat", sans-serif;
+}
+
+.ticket-type {
+    background: #4a437e;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.organizer {
+    font-size: 11px;
+    margin-top: 10px;
+    color: #888;
+}
+
+.ticket-count {
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.perforation {
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.perforation span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    border: 1px solid #ddd;
 }
 
 @media print {
@@ -211,6 +320,7 @@ body, html {
     }
     .ticket { 
         box-shadow: none;
+        border-radius: 0;
     }
 }
 """
@@ -228,41 +338,50 @@ TICKET_HTML_TEMPLATE = """
 <body>
     <div class="ticket">
         <div class="left">
-            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')">
-                <p class="admit-one">
-                    <span>ADMIT ONE</span>
-                    <span>ADMIT ONE</span>
-                    <span>ADMIT ONE</span>
-                </p>
-                <div class="ticket-number">
-                    <p>#{{ ticket.reference }}</p>
-                </div>
+            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')"></div>
+            <p class="admit-one">
+                <span>ADMIT ONE</span>
+                <span>ADMIT ONE</span>
+                <span>ADMIT ONE</span>
+            </p>
+            <div class="ticket-number">
+                <p>#{{ ticket.reference }}</p>
             </div>
             <div class="ticket-info">
                 <div class="show-name">
                     <h1>{{ ticket.event_title }}</h1>
                 </div>
-                <div class="time">
-                    <p>{{ ticket.event_date_time }}</p>
+                <div class="date">
+                    <i class="far fa-calendar-alt"></i> {{ ticket.event_date_time }}
                 </div>
-                <p class="location">
-                    <span>{{ ticket.event_location }}</span>
+                <div class="time">
+                    <p><i class="far fa-clock"></i> {{ ticket.event_time }}</p>
+                </div>
+                <div class="location">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ ticket.event_location }}</span>
                     {% if ticket.event_address %}
-                    <span class="separator"><i class="fas fa-map-marker-alt"></i></span>
                     <span>{{ ticket.event_address }}</span>
                     {% endif %}
-                </p>
+                </div>
             </div>
         </div>
         <div class="right">
+            <div class="perforation">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <p class="admit-one">
                 <span>ADMIT ONE</span>
                 <span>ADMIT ONE</span>
                 <span>ADMIT ONE</span>
             </p>
             <div class="right-info-container">
+                <div class="ticket-type">{{ ticket.ticket_type }}</div>
                 <div class="show-name">
-                    <h1>{{ ticket.ticket_type }}</h1>
+                    <h1>Billet d'entrée</h1>
                 </div>
                 <div class="barcode">
                     <img src="{{ ticket.qr_code }}" alt="QR code">
@@ -271,7 +390,10 @@ TICKET_HTML_TEMPLATE = """
                     #{{ ticket.reference }}
                 </p>
                 {% if ticket.organizer_name %}
-                <p style="font-size: 10px; margin-top: 10px;">Organisé par {{ ticket.organizer_name }}</p>
+                <p class="organizer">Organisé par {{ ticket.organizer_name }}</p>
+                {% endif %}
+                {% if ticket.current_ticket and ticket.total_tickets %}
+                <p class="ticket-count">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
                 {% endif %}
             </div>
         </div>
@@ -288,48 +410,56 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billets - {{ tickets[0].event_title }}</title>
+    <title>Billet - {{ ticket.event_title }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 </head>
 <body>
-    {% for ticket in tickets %}
-    <div class="ticket" style="{% if not loop.first %}page-break-before: always;{% endif %}">
+    <div class="ticket">
         <div class="left">
-            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')">
-                <p class="admit-one">
-                    <span>ADMIT ONE</span>
-                    <span>ADMIT ONE</span>
-                    <span>ADMIT ONE</span>
-                </p>
-                <div class="ticket-number">
-                    <p>#{{ ticket.reference }}</p>
-                </div>
+            <div class="image" style="background-image: url('{{ ticket.event_image_url }}')"></div>
+            <p class="admit-one">
+                <span>ADMIT ONE</span>
+                <span>ADMIT ONE</span>
+                <span>ADMIT ONE</span>
+            </p>
+            <div class="ticket-number">
+                <p>#{{ ticket.reference }}</p>
             </div>
             <div class="ticket-info">
                 <div class="show-name">
                     <h1>{{ ticket.event_title }}</h1>
                 </div>
-                <div class="time">
-                    <p>{{ ticket.event_date_time }}</p>
+                <div class="date">
+                    <i class="far fa-calendar-alt"></i> {{ ticket.event_date_time }}
                 </div>
-                <p class="location">
-                    <span>{{ ticket.event_location }}</span>
+                <div class="time">
+                    <p><i class="far fa-clock"></i> {{ ticket.event_time }}</p>
+                </div>
+                <div class="location">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ ticket.event_location }}</span>
                     {% if ticket.event_address %}
-                    <span class="separator"><i class="fas fa-map-marker-alt"></i></span>
                     <span>{{ ticket.event_address }}</span>
                     {% endif %}
-                </p>
+                </div>
             </div>
         </div>
         <div class="right">
+            <div class="perforation">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <p class="admit-one">
                 <span>ADMIT ONE</span>
                 <span>ADMIT ONE</span>
                 <span>ADMIT ONE</span>
             </p>
             <div class="right-info-container">
+                <div class="ticket-type">{{ ticket.ticket_type }}</div>
                 <div class="show-name">
-                    <h1>{{ ticket.ticket_type }}</h1>
+                    <h1>Billet d'entrée</h1>
                 </div>
                 <div class="barcode">
                     <img src="{{ ticket.qr_code }}" alt="QR code">
@@ -338,16 +468,15 @@ MULTIPLE_TICKETS_HTML_TEMPLATE = """
                     #{{ ticket.reference }}
                 </p>
                 {% if ticket.organizer_name %}
-                <p style="font-size: 10px; margin-top: 10px;">Organisé par {{ ticket.organizer_name }}</p>
+                <p class="organizer">Organisé par {{ ticket.organizer_name }}</p>
                 {% endif %}
                 {% if ticket.current_ticket and ticket.total_tickets %}
-                <p style="font-size: 10px;">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
+                <p class="ticket-count">Billet {{ ticket.current_ticket }} sur {{ ticket.total_tickets }}</p>
                 {% endif %}
             </div>
         </div>
         <div class="watermark">Généré le {{ ticket.generated_at }}</div>
     </div>
-    {% endfor %}
 </body>
 </html>
 """
