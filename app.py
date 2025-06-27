@@ -669,9 +669,7 @@ def generate_single_ticket():
         pdf_buffer = io.BytesIO()
         html_doc.write_pdf(
             pdf_buffer, 
-            stylesheets=[css_doc],
-            optimize_images=True,
-            presentational_hints=True
+            stylesheets=[css_doc]
         )
         pdf_buffer.seek(0)
         
@@ -736,9 +734,7 @@ def generate_multiple_tickets():
         pdf_buffer = io.BytesIO()
         html_doc.write_pdf(
             pdf_buffer, 
-            stylesheets=[css_doc],
-            optimize_images=True,
-            presentational_hints=True
+            stylesheets=[css_doc]
         )
         pdf_buffer.seek(0)
         
