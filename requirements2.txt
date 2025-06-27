@@ -1,0 +1,1 @@
+weasyprint==59.0  # Version la plus récente (oct. 2023)
